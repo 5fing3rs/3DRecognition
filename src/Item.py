@@ -6,12 +6,12 @@ import datetime
 import yaml
 
 class Item(object):
-    def __init__(self):
-        self.identication = None
+    def __init__(self, identification, article):
+        self.identification = None
         self.x_abscissa = None
         self.y_ordinate = None
-        self.type = None
-        self.yaml_file_name = None
+        self.article = None
+        self.yaml_file_name = "../output/%s/%s/log.yaml" % article, identification 
 
     def log_position(self):
         time_stamp = time.time()

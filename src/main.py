@@ -142,6 +142,7 @@ def main():
             item.y_ordinate = None
         
         print("itemx",item.x_abscissa, "itemy",item.y_ordinate)
+        item.log_position()
         if cv2.waitKey(1) == 27:
             break
 
