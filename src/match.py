@@ -6,6 +6,7 @@ import cv2
 import os
 import time
 
+
 def template_processing(template_directory):
     """Extracts templates from template_directory &
        does some preprocessing on it"""
@@ -28,7 +29,8 @@ def template_processing(template_directory):
 
     return templates, tH, tW
 
-def match_templates(edged, templates, found, method = cv2.TM_CCOEFF_NORMED):
+
+def match_templates(edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
 
     maxLoc = []
     maxVal = []
@@ -46,6 +48,44 @@ def match_templates(edged, templates, found, method = cv2.TM_CCOEFF_NORMED):
             found[i] = (maxVal[i], maxLoc[i], r)
 
     return maxVal, maxLoc, minVal
+
+def localise_match(maxLoc, templates, tH, tW):
+    startX = []
+    startY = []
+    endX = []
+    endY = []
+
+    for i in range(len(templates)):
+        (_, maxLoc[i], r) = found[i]
+        (startX1, startY1) = (int(maxLoc[i][0] * r), int(maxLoc[i][1] * r))
+        (endX1, endY1) = (int((maxLoc[i][0] + tW[i]) * r), int((maxLoc[i][1] + tH[i]) * r))
+
+        startX.append(startX1)
+        startY.append(startY1)
+        endX.append(endX1)
+        endY.append(endY1)
+        # print(maxVal[i])
+
+    return startX, startY, endX, endY
+
+def draw_match(maxVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY):
+
+    max_of_all = maxVal[0]
+    index_of_max = 0
+    iterator = 0
+
+    for i in maxVal:
+        if max_of_all < i:
+            max_of_all = i
+            index_of_max = iterator
+        iterator += 1
+
+
+    if max_of_all > THRESH_MAX:
+        # if minVal[index_of_max] > THRESH_MIN:
+        cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
+    cv2.imshow("Result", frame)
+
 
 # def auto_canny(image, sigma=0.33):
 
@@ -101,7 +141,7 @@ while True:
         # edged = auto_canny(resized)
         # resized = cv2.bilateralFilter(resized,9,75,85,cv2.BORDER_DEFAULT)
         # resized = cv2.medianBlur(resized, 7)
-        #_,resized = cv2.threshold(resized, 200, 255, cv2.THRESH_BINARY);
+        # _,resized = cv2.threshold(resized, 200, 255, cv2.THRESH_BINARY);
         # resized = cv2.adaptiveThreshold(resized,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY+cv2.THRESH_OTSU,11,2)
         # cv2.imshow('threshold', resized)
 
@@ -110,39 +150,14 @@ while True:
 
         (maxVal, maxLoc, minVal) = match_templates(edged, templates, found, cv2.TM_CCOEFF_NORMED)
 
-    startX = []
-    startY = []
-    endX = []
-    endY = []
 
-    for i in range(len(templates)):
-        (_, maxLoc[i], r) = found[i]
-        (startX1, startY1) = (int(maxLoc[i][0] * r), int(maxLoc[i][1] * r))
-        (endX1, endY1) = (
-            int((maxLoc[i][0] + tW[i]) * r), int((maxLoc[i][1] + tH[i]) * r))
-        startX.append(startX1)
-        startY.append(startY1)
-        endX.append(endX1)
-        endY.append(endY1)
-        # print(maxVal[i])
+    (startX, startY, endX, endY) = localise_match(maxLoc, found, tH, tW)
+
 
     # print(len(endX),len(endY),len(startX),len(startY))
 
-    max_of_all = maxVal[0]
-    index_of_max = 0
-    iterator = 0
+    draw_match(maxVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY)
 
-    for i in maxVal:
-        if max_of_all < i:
-            max_of_all = i
-            index_of_max = iterator
-        iterator += 1
-
-    if max_of_all > THRESH_MAX:
-        # if minVal[index_of_max] > THRESH_MIN:
-        print(max_of_all)
-        cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]),(endX[index_of_max],endY[index_of_max]), (0, 0, 255), 2)
-    cv2.imshow("Result", frame)
     if cv2.waitKey(1) == 27:
         break
 
