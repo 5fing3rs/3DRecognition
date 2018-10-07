@@ -11,7 +11,6 @@ class Item(object):
         self.x_abscissa = None
         self.y_ordinate = None
         self.article = None
-        self.yaml_file_name = "../output/%s/%s/log.yaml" % article, identification 
 
     def log_position(self):
         time_stamp = time.time()
@@ -21,6 +20,3 @@ class Item(object):
             "y" : self.y_ordinate,
             "time_stamp" : time_stamp
         }
-        with open(self.yaml_file_name, 'w') as yaml_file:
-            yaml.dump(data, yaml_file, default_flow_style=False)
-        pass
