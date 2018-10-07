@@ -35,8 +35,12 @@ def generate_template(video_stream):
     success = True
     while success:
         if count%10 == 0:
-            cv2.imwrite("./frame%d.jpg" % count, image)
-            resize_image("./frame%d.jpg" % count, 250)
+            # cv2.imwrite("../data/syringe_body/templates/%c_syringe_body%d.jpg" % (video_stream[-5],count), image)
+            # resize_image("../data/syringe_body/templates/%c_syringe_body%d.jpg" % (video_stream[-5],count), 250)
+
+            cv2.imwrite("../data/syringe_body/templates/syringe_body_%c_%d.jpg" % (video_stream[-5],count), image)
+            resize_image("../data/syringe_body/templates/syringe_body_%c_%d.jpg" % (video_stream[-5],count), 250)
+            
         success, image = video_capture.read()
         count += 1
 
