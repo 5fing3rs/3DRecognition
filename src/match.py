@@ -3,10 +3,13 @@ import argparse
 import imutils
 import glob
 import cv2
+import os
 
 ap = argparse.ArgumentParser()
-ap.add_argument("-t1", "--template1", required=True, help="Path to template image")
-ap.add_argument("-t2", "--template2", required=True, help="Path to template image")
+# ap.add_argument("-t1", "--template1", required=True, help="Path to template image")
+# ap.add_argument("-t2", "--template2", required=True, help="Path to template image")
+ap.add_argument("-td", "--templatedir", required=True, help="Path to template directory")
+
 
 ap.add_argument("-v", "--visualize",help="Flag indicating whether or not to visualize each iteration")
 args = vars(ap.parse_args())
@@ -17,14 +20,27 @@ tH = []
 tW = []
 
 
-for i in range(2):
-    templates.append(cv2.imread(args["template%d" %(i+1)]))
-    templates[i] = cv2.cvtColor(templates[i], cv2.COLOR_BGR2GRAY)
-    templates[i] = cv2.Canny(templates[i], 50 , 200)
-    tempH, tempW = templates[i].shape[:2]
-    tH.append(tempH)
-    tW.append(tempW)
-    cv2.imshow("Template"+str(i), templates[i])
+for filename in os.listdir(args["templatedir"]):
+    if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
+        templates.append(cv2.imread(args["templatedir"] + '/' + filename))
+        templates[-1] = cv2.cvtColor(templates[-1], cv2.COLOR_BGR2GRAY)
+        templates[-1] = cv2.Canny(templates[-1], 50 , 200)
+        tempH, tempW = templates[-1].shape[:2]
+        tH.append(tempH)
+        tW.append(tempW)
+        cv2.imshow("Template"+str(len(templates)), templates[-1])
+    else:
+        pass
+
+
+# for i in range(2):
+#     templates.append(cv2.imread(args["template%d" %(i+1)]))
+#     templates[i] = cv2.cvtColor(templates[i], cv2.COLOR_BGR2GRAY)
+#     templates[i] = cv2.Canny(templates[i], 50 , 200)
+#     tempH, tempW = templates[i].shape[:2]
+#     tH.append(tempH)
+#     tW.append(tempW)
+#     cv2.imshow("Template"+str(i), templates[i])
 
 
 cap=cv2.VideoCapture(0)
@@ -37,7 +53,7 @@ while True:
     THRESH_MAX = 0.075
     THRESH_MIN = -0.02
 
-    for i in range(2):
+    for i in range(len(templates)):
         found.append(None)
 
     for scale in np.linspace(0.2, 1.0, 20)[::-1]:
@@ -46,7 +62,7 @@ while True:
 
         break_flag = 0
 
-        for i in range(2):
+        for i in range(len(templates)):
             if resized.shape[0] < tH[i] or resized.shape[0] < tW[i]:
                 break_flag = 1
 
@@ -60,7 +76,7 @@ while True:
         minVal = []
 
 
-        for i in range(2):
+        for i in range(len(templates)):
 
             result = cv2.matchTemplate(edged, templates[i], cv2.TM_CCOEFF_NORMED)
             (minVal1, maxVal1, _, maxLoc1) = cv2.minMaxLoc(result)
@@ -75,7 +91,7 @@ while True:
     endX = []
     endY = []
 
-    for i in range(2):
+    for i in range(len(templates)):
         (_, maxLoc[i], r) = found[i]
         (startX1, startY1) = (int(maxLoc[i][0] * r), int(maxLoc[i][1] * r))
         (endX1, endY1) = (int((maxLoc[i][0] + tW[i]) * r), int((maxLoc[i][1] + tH[i]) * r))
