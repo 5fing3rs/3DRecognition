@@ -23,8 +23,9 @@ tW = []
 for filename in os.listdir(args["templatedir"]):
     if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
         templates.append(cv2.imread(args["templatedir"] + '/' + filename))
+        print("length : ",len(templates))
         templates[-1] = cv2.cvtColor(templates[-1], cv2.COLOR_BGR2GRAY)
-        templates[-1] = cv2.Canny(templates[-1], 50 , 200)
+        templates[-1] = cv2.Canny(templates[-1], 50 , 100)
         tempH, tempW = templates[-1].shape[:2]
         tH.append(tempH)
         tW.append(tempW)
@@ -50,8 +51,8 @@ while True:
     ret, frame=cap.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     found = []
-    THRESH_MAX = 0.075
-    THRESH_MIN = -0.02
+    THRESH_MAX = 0.09
+    THRESH_MIN = -0.045
 
     for i in range(len(templates)):
         found.append(None)
@@ -69,7 +70,7 @@ while True:
         if break_flag == 1:
             break
 
-        edged = cv2.Canny(resized, 50, 200)
+        edged = cv2.Canny(resized, 50, 100)
         cv2.imshow('abv',edged)
         maxVal = []
         maxLoc = []
@@ -117,6 +118,7 @@ while True:
     if max_of_all > THRESH_MAX:
         if minVal[index_of_max] > THRESH_MIN:
             cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
+    print(maxVal[index_of_max], minVal[index_of_max])
     cv2.imshow("Result", frame)
     if cv2.waitKey(1) == 27:
         break
