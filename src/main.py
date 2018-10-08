@@ -94,16 +94,33 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
 
 def main():
 
+    SUCCESS = True
+
     item = Item('heart',1)
     
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("-td", "--templatedir", required=True, help="Path to template directory")
+    arg_parser.add_argument("-v", "--videofile", required=False, help="Path to the video file")
     args = vars(arg_parser.parse_args())
     (templates, tH, tW) = template_processing(args["templatedir"])
-    cap = cv2.VideoCapture(0)
 
-    while True:
+    print(args['videofile'])
+
+    if args['videofile'] is None:
+        cap = cv2.VideoCapture(0)
+    else:
+        try:
+            cap = cv2.VideoCapture(args['videofile'])
+        except:
+            print("Error in checking the path to the video file.")
+            print("Please check the path to the video file.")
+            return
+
+    while True and SUCCESS:
         ret, frame = cap.read()
+        SUCCESS = ret
+        if not SUCCESS:
+            break
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         found = []
 
