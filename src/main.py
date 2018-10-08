@@ -23,6 +23,11 @@ def make_480p(cap):
     cap.set(4, 480)
     return cap
 
+def make_240p(cap):
+    cap.set(3, 352)
+    cap.set(4, 240)
+    return cap
+
 def template_processing(template_directory):
     """Extracts templates from template_directory &
        does some preprocessing on it"""
@@ -112,7 +117,7 @@ def main():
     SUCCESS = True
 
     item = Item('syringe_body',1)
-    
+
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("-td", "--templatedir", required=True, help="Path to template directory")
     arg_parser.add_argument("-v", "--videofile", required=False, help="Path to the video file")
@@ -123,11 +128,11 @@ def main():
 
     if args['videofile'] is None:
         cap = cv2.VideoCapture(0)
-        cap = make_480p(cap)
+        cap = make_240p(cap)
     else:
         try:
             cap = cv2.VideoCapture(args['videofile'])
-            cap = make_480p(cap)
+            cap = make_240p(cap)
         except:
             print("Error in checking the path to the video file.")
             print("Please check the path to the video file.")
@@ -166,7 +171,7 @@ def main():
 
 
         (startX, startY, endX, endY) = localise_match(found, maxLoc, found, tH, tW, r)
-        
+
         is_drawn, boxSX, boxSY, boxEX, boxEY = draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
         if is_drawn:
             item.x_abscissa = (boxSX+boxEX)/2
@@ -174,7 +179,7 @@ def main():
         else :
             item.x_abscissa = None
             item.y_ordinate = None
-        
+
         print("itemx",item.x_abscissa, "itemy",item.y_ordinate)
         item.log_position()
         if cv2.waitKey(1) == 27:
