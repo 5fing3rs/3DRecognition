@@ -73,6 +73,7 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
     max_of_all = maxVal[0]
     index_of_max = 0
     iterator = 0
+    is_drawn = False
 
     for i in maxVal:
         if max_of_all < i:
@@ -82,14 +83,19 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
 
 
     if max_of_all > THRESH_MAX:
-        print(max_of_all, minVal[index_of_max])
+        is_drawn = True
+        # print(max_of_all, minVal[index_of_max])
         # if minVal[index_of_max] > THRESH_MIN:
         cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
     cv2.imshow("Result", frame)
+    return is_drawn,startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max]
 
 
 
 def main():
+
+    item = Item()
+    
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("-td", "--templatedir", required=True, help="Path to template directory")
     args = vars(arg_parser.parse_args())
@@ -126,10 +132,16 @@ def main():
 
 
         (startX, startY, endX, endY) = localise_match(found, maxLoc, found, tH, tW, r)
-
-
-        draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
-
+        
+        is_drawn, boxSX, boxSY, boxEX, boxEY = draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
+        if is_drawn:
+            item.x_abscissa = (boxSX+boxEX)/2
+            item.y_ordinate = (boxSY+boxEY)/2
+        else :
+            item.x_abscissa = None
+            item.y_ordinate = None
+        
+        print("itemx",item.x_abscissa, "itemy",item.y_ordinate)
         if cv2.waitKey(1) == 27:
             break
 
