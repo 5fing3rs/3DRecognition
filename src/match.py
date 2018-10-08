@@ -117,6 +117,7 @@ while True:
     ret, frame = cap.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     found = []
+    THRESH_MAX = 0.09
     THRESH_MIN = -0.045
 
     for i in range(len(templates)):
@@ -144,6 +145,7 @@ while True:
         # resized = cv2.adaptiveThreshold(resized,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY+cv2.THRESH_OTSU,11,2)
         # cv2.imshow('threshold', resized)
 
+        edged = cv2.Canny(resized, 50, 200)
 
         (maxVal, maxLoc, minVal) = match_templates(edged, templates, found, cv2.TM_CCOEFF_NORMED)
 

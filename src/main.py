@@ -68,7 +68,7 @@ def localise_match(found, maxLoc, templates, tH, tW, r):
 
     return startX, startY, endX, endY
 
-def draw_match(frame, maxVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY):
+def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY):
 
     max_of_all = maxVal[0]
     index_of_max = 0
@@ -82,6 +82,8 @@ def draw_match(frame, maxVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY
 
 
     if max_of_all > THRESH_MAX:
+        print(max_of_all, minVal[index_of_max])
+        # if minVal[index_of_max] > THRESH_MIN:
         cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
     cv2.imshow("Result", frame)
 
@@ -117,7 +119,7 @@ def main():
                 break
 
 
-            edged = cv2.Canny(resized, 50, 200)
+            edged = cv2.Canny(resized, 50,100)
             cv2.imshow('abv', edged)
 
             (maxVal, maxLoc, minVal) = match_templates(r, edged, templates, found, cv2.TM_CCOEFF_NORMED)
@@ -126,7 +128,7 @@ def main():
         (startX, startY, endX, endY) = localise_match(found, maxLoc, found, tH, tW, r)
 
 
-        draw_match(frame, maxVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
+        draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
 
         if cv2.waitKey(1) == 27:
             break
