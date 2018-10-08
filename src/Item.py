@@ -3,15 +3,22 @@
 import logging
 import time
 import datetime
-import yaml
+import os
+import json
 
 class Item(object):
-    def __init__(self, identification, article):
+    def __init__(self, article, identification):
         self.identification = None
         self.x_abscissa = None
         self.y_ordinate = None
         self.article = None
-        self.yaml_file_name = "../output/%s/%s/log.yaml" % article, identification 
+        self.json_file_name = "../output/%s/%d/log.json" % (article, identification)
+        exists = os.path.isfile(self.json_file_name)
+        if exists:
+            os.remove(self.json_file_name)
+        with open(self.json_file_name, mode = 'w', encoding= 'utf-8') as f:
+            json.dump([],f)
+
 
     def log_position(self):
         time_stamp = time.time()
@@ -21,6 +28,11 @@ class Item(object):
             "y" : self.y_ordinate,
             "time_stamp" : time_stamp
         }
-        with open(self.yaml_file_name, 'w') as yaml_file:
-            yaml.dump(data, yaml_file, default_flow_style=False)
-        pass
+        feeds = [] 
+        with open(self.json_file_name, mode = 'r', encoding= 'utf-8') as feedsjson:
+            feeds=json.load(feedsjson)
+        with open(self.json_file_name, mode = 'w', encoding= 'utf-8') as feedsjson:
+            entry = data
+            feeds.append(entry)
+            json.dump(feeds, feedsjson,indent=4)
+

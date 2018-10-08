@@ -94,7 +94,7 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
 
 def main():
 
-    item = Item()
+    item = Item('heart',1)
     
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("-td", "--templatedir", required=True, help="Path to template directory")
