@@ -31,6 +31,7 @@ def template_processing(template_directory):
 
 
 def match_templates(edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
+    """Function to match model edge template with frame edge template"""
 
     maxLoc = []
     maxVal = []
@@ -50,6 +51,8 @@ def match_templates(edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
     return maxVal, maxLoc, minVal
 
 def localise_match(maxLoc, templates, tH, tW):
+    """Function to estimate a bounding box around matched region of interest"""
+
     startX = []
     startY = []
     endX = []
@@ -69,6 +72,7 @@ def localise_match(maxLoc, templates, tH, tW):
     return startX, startY, endX, endY
 
 def draw_match(maxVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY):
+    """Draws bounding box for best calculated match"""
 
     max_of_all = maxVal[0]
     index_of_max = 0
@@ -85,17 +89,6 @@ def draw_match(maxVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY):
         # if minVal[index_of_max] > THRESH_MIN:
         cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
     cv2.imshow("Result", frame)
-
-
-# def auto_canny(image, sigma=0.33):
-
-# 	v = np.median(image)
-
-# 	lower = int(max(0, (1.0 - sigma) * v))
-# 	upper = int(min(255, (1.0 + sigma) * v))
-# 	edged = cv2.Canny(image, lower, upper)
-
-# 	return edged
 
 ################################################################################
 
@@ -151,9 +144,6 @@ while True:
 
 
     (startX, startY, endX, endY) = localise_match(maxLoc, found, tH, tW)
-
-
-    # print(len(endX),len(endY),len(startX),len(startY))
 
     draw_match(maxVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY)
 
