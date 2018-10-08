@@ -8,6 +8,21 @@ import time
 from Item import Item
 import Config
 
+def make_1080p(cap):
+    cap.set(3, 1920)
+    cap.set(4, 1080)
+    return cap
+
+def make_720p(cap):
+    cap.set(3, 1280)
+    cap.set(4, 720)
+    return cap
+
+def make_480p(cap):
+    cap.set(3, 640)
+    cap.set(4, 480)
+    return cap
+
 def template_processing(template_directory):
     """Extracts templates from template_directory &
        does some preprocessing on it"""
@@ -96,7 +111,7 @@ def main():
 
     SUCCESS = True
 
-    item = Item('heart',1)
+    item = Item('syringe_body',1)
     
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("-td", "--templatedir", required=True, help="Path to template directory")
@@ -108,9 +123,11 @@ def main():
 
     if args['videofile'] is None:
         cap = cv2.VideoCapture(0)
+        cap = make_480p(cap)
     else:
         try:
             cap = cv2.VideoCapture(args['videofile'])
+            cap = make_480p(cap)
         except:
             print("Error in checking the path to the video file.")
             print("Please check the path to the video file.")
