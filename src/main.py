@@ -8,6 +8,7 @@ import time
 from Item import Item
 import Config
 
+#setting video resolution
 def make_1080p(cap):
     cap.set(3, 1920)
     cap.set(4, 1080)
@@ -28,6 +29,7 @@ def make_240p(cap):
     cap.set(4, 240)
     return cap
 
+#extracting templates from the template_directory to use it for matchtemplate
 def template_processing(template_directory):
     """Extracts templates from template_directory &
        does some preprocessing on it"""
@@ -49,6 +51,7 @@ def template_processing(template_directory):
             pass
 
     return templates, tH, tW
+
 
 
 def match_templates(r, edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
