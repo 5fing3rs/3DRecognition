@@ -8,6 +8,7 @@ import time
 from Item import Item
 import Config
 
+#setting video resolution
 def make_1080p(cap):
     cap.set(3, 1920)
     cap.set(4, 1080)
@@ -28,6 +29,7 @@ def make_240p(cap):
     cap.set(4, 240)
     return cap
 
+#extracting templates from template_directory to use it for match template
 def template_processing(template_directory):
     """Extracts templates from template_directory &
        does some preprocessing on it"""
@@ -51,6 +53,7 @@ def template_processing(template_directory):
     return templates, tH, tW
 
 
+#gets the brightest and the dimmest pixel from the matched matrix
 def match_templates(r, edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
 
     maxLoc = []
@@ -70,6 +73,8 @@ def match_templates(r, edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
 
     return maxVal, maxLoc, minVal
 
+
+#calculates the bounding box for the region of interest
 def localise_match(found, maxLoc, templates, tH, tW, r):
     startX = []
     startY = []
@@ -88,6 +93,7 @@ def localise_match(found, maxLoc, templates, tH, tW, r):
 
     return startX, startY, endX, endY
 
+#picks the brightest detection out of the set of bright pixel
 def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY):
 
     max_of_all = maxVal[0]
@@ -127,11 +133,11 @@ def main():
     print(args['videofile'])
 
     if args['videofile'] is None:
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(0)              #setting input to webcam/live video
         cap = make_240p(cap)
     else:
         try:
-            cap = cv2.VideoCapture(args['videofile'])
+            cap = cv2.VideoCapture(args['videofile'])         #checking if input is through a video file
             cap = make_240p(cap)
         except:
             print("Error in checking the path to the video file.")
@@ -143,7 +149,7 @@ def main():
         SUCCESS = ret
         if not SUCCESS:
             break
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)     #converting the video to grayscale to proceed with extraction of edges
         found = []
 
         for i in range(len(templates)):
@@ -164,7 +170,7 @@ def main():
                 break
 
 
-            edged = cv2.Canny(resized, 50,100)
+            edged = cv2.Canny(resized, 50,100)           #using Canny edge algorithm to extract edges from the video
             cv2.imshow('abv', edged)
 
             (maxVal, maxLoc, minVal) = match_templates(r, edged, templates, found, cv2.TM_CCOEFF_NORMED)
@@ -174,14 +180,14 @@ def main():
 
         is_drawn, boxSX, boxSY, boxEX, boxEY = draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
         if is_drawn:
-            item.x_abscissa = (boxSX+boxEX)/2
+            item.x_abscissa = (boxSX+boxEX)/2           #setting the x and y coordinates to be logged into the log file
             item.y_ordinate = (boxSY+boxEY)/2
         else :
             item.x_abscissa = None
             item.y_ordinate = None
 
         print("itemx",item.x_abscissa, "itemy",item.y_ordinate)
-        item.log_position()
+        item.log_position()                          #logging the coordinates into a file
         if cv2.waitKey(1) == 27:
             break
 
