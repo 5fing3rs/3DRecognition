@@ -6,6 +6,7 @@ import cv2
 import os
 import time
 from Item import Item
+# from video_writer import OutputVideoWriter
 import Config
 
 #setting video resolution
@@ -114,11 +115,17 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
         # if minVal[index_of_max] > THRESH_MIN:
         cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
     cv2.imshow("Result", frame)
-    return is_drawn,startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max]
+    return is_drawn,startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max], frame
 
+def write_video(video, frame):
+    video.write(frame)
 
+#terrible implementation
 
 def main():
+    # output_video = OutputVideoWriter('./output.avi',1,240,352,True)
+    output_filename = "./new1.avi"
+    
 
     SUCCESS = True
 
@@ -143,6 +150,12 @@ def main():
             print("Error in checking the path to the video file.")
             print("Please check the path to the video file.")
             return
+
+    ret, frame = cap.read()
+    hheight, wwidth, llayers = frame.shape
+    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
+                             25, (wwidth,hheight), True)
+
 
     while True and SUCCESS:
         ret, frame = cap.read()
@@ -178,7 +191,9 @@ def main():
 
         (startX, startY, endX, endY) = localise_match(found, maxLoc, found, tH, tW, r)
 
-        is_drawn, boxSX, boxSY, boxEX, boxEY = draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
+        is_drawn, boxSX, boxSY, boxEX, boxEY, modframe = draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
+        writer.write(modframe)
+
         if is_drawn:
             item.x_abscissa = (boxSX+boxEX)/2           #setting the x and y coordinates to be logged into the log file
             item.y_ordinate = (boxSY+boxEY)/2
@@ -192,6 +207,8 @@ def main():
             break
 
     cap.release()
+    # output_video.release_video()
+    writer.release()
     cv2.destroyAllWindows()
 
 main()
