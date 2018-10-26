@@ -134,7 +134,7 @@ def main():
 
     if args['videofile'] is None:
         cap = cv2.VideoCapture(0)              #setting input to webcam/live video
-        cap = make_240p(cap)
+        # cap = make_240p(cap)
     else:
         try:
             cap = cv2.VideoCapture(args['videofile'])         #checking if input is through a video file
@@ -172,10 +172,11 @@ def main():
 
             edged = cv2.Canny(resized, 50,100)           #using Canny edge algorithm to extract edges from the video
             cv2.imshow('abv', edged)
-
+            
             (maxVal, maxLoc, minVal) = match_templates(r, edged, templates, found, cv2.TM_CCOEFF_NORMED)
+            print(maxLoc)
 
-
+        
         (startX, startY, endX, endY) = localise_match(found, maxLoc, found, tH, tW, r)
 
         is_drawn, boxSX, boxSY, boxEX, boxEY = draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
