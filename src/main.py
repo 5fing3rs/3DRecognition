@@ -134,7 +134,7 @@ def main():
 
     if args['videofile'] is None:
         cap = cv2.VideoCapture(0)              #setting input to webcam/live video
-        cap = make_240p(cap)
+        #cap = make_240p(cap)
     else:
         try:
             cap = cv2.VideoCapture(args['videofile'])         #checking if input is through a video file
