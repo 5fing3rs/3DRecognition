@@ -114,6 +114,10 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
         # print(max_of_all, minVal[index_of_max])
         # if minVal[index_of_max] > THRESH_MIN:
         cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
+
+    Config.fps.stop()
+    cv2.putText(frame,"Elapsed time: {:.2f}".format(Config.fps.elapsed()), Config.position_elapsed, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
+    cv2.putText(frame,"FPS: {:.2f}".format(Config.fps.fps()), Config.position_fps, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
     cv2.imshow("Result", frame)
     return is_drawn,startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max], frame
 
@@ -125,7 +129,7 @@ def write_video(video, frame):
 def main():
     # output_video = OutputVideoWriter('./output.avi',1,240,352,True)
     output_filename = "./new1.avi"
-    
+
 
     SUCCESS = True
 
@@ -155,7 +159,6 @@ def main():
     hheight, wwidth, llayers = frame.shape
     writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth,hheight), True)
-
 
     while True and SUCCESS:
         ret, frame = cap.read()
@@ -203,8 +206,12 @@ def main():
 
         print("itemx",item.x_abscissa, "itemy",item.y_ordinate)
         item.log_position()                          #logging the coordinates into a file
+        Config.fps.update()
+
         if cv2.waitKey(1) == 27:
             break
+
+    Config.fps.stop()
 
     cap.release()
     # output_video.release_video()
