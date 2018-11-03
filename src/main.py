@@ -1,60 +1,42 @@
-import numpy as np
 import argparse
 import imutils
 import glob
 import cv2
 import os
 import time
+import numpy as np
 from Item import Item
 # from video_writer import OutputVideoWriter
 import Config
 
-#setting video resolution
+# setting video resolution
+
+
 def make_1080p(cap):
     cap.set(3, 1920)
     cap.set(4, 1080)
     return cap
+
 
 def make_720p(cap):
     cap.set(3, 1280)
     cap.set(4, 720)
     return cap
 
+
 def make_480p(cap):
     cap.set(3, 640)
     cap.set(4, 480)
     return cap
+
 
 def make_240p(cap):
     cap.set(3, 352)
     cap.set(4, 240)
     return cap
 
-#extracting templates from template_directory to use it for match template
-def template_processing(template_directory):
-    """Extracts templates from template_directory &
-       does some preprocessing on it"""
 
-    templates = []
-    tH = []
-    tW = []
-
-    for filename in os.listdir(template_directory):
-        if filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
-            templates.append(cv2.imread(template_directory + '/' + filename))
-            templates[-1] = cv2.cvtColor(templates[-1], cv2.COLOR_BGR2GRAY)
-            templates[-1] = cv2.Canny(templates[-1], 50, 100)
-            tempH, tempW = templates[-1].shape[:2]
-            tH.append(tempH)
-            tW.append(tempW)
-            cv2.imshow("Template" + str(len(templates)), templates[-1])
-        else:
-            pass
-
-    return templates, tH, tW
-
-
-#gets the brightest and the dimmest pixel from the matched matrix
+# gets the brightest and the dimmest pixel from the matched matrix
 def match_templates(r, edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
 
     maxLoc = []
@@ -75,7 +57,7 @@ def match_templates(r, edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
     return maxVal, maxLoc, minVal
 
 
-#calculates the bounding box for the region of interest
+# calculates the bounding box for the region of interest
 def localise_match(found, maxLoc, templates, tH, tW, r):
     startX = []
     startY = []
@@ -85,7 +67,8 @@ def localise_match(found, maxLoc, templates, tH, tW, r):
     for i in range(len(templates)):
         (_, maxLoc[i], r) = found[i]
         (startX1, startY1) = (int(maxLoc[i][0] * r), int(maxLoc[i][1] * r))
-        (endX1, endY1) = (int((maxLoc[i][0] + tW[i]) * r), int((maxLoc[i][1] + tH[i]) * r))
+        (endX1, endY1) = (
+            int((maxLoc[i][0] + tW[i]) * r), int((maxLoc[i][1] + tH[i]) * r))
 
         startX.append(startX1)
         startY.append(startY1)
@@ -94,8 +77,10 @@ def localise_match(found, maxLoc, templates, tH, tW, r):
 
     return startX, startY, endX, endY
 
-#picks the brightest detection out of the set of bright pixel
-def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY):
+# picks the brightest detection out of the set of bright pixel
+
+
+def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY, number):
 
     max_of_all = maxVal[0]
     index_of_max = 0
@@ -108,47 +93,53 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
             index_of_max = iterator
         iterator += 1
 
-
     if max_of_all > THRESH_MAX:
         is_drawn = True
         # print(max_of_all, minVal[index_of_max])
         # if minVal[index_of_max] > THRESH_MIN:
-        cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[index_of_max], endY[index_of_max]), (0, 0, 255), 2)
-
-    Config.fps.stop()
-    cv2.putText(frame,"Elapsed time: {:.2f}".format(Config.fps.elapsed()), Config.position_elapsed, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
-    cv2.putText(frame,"FPS: {:.2f}".format(Config.fps.fps()), Config.position_fps, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
+        if number == 1:
+            cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[
+                index_of_max], endY[index_of_max]), (0, 0, 255), 2)
+        else:
+            cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[
+                index_of_max], endY[index_of_max]), (0, 255, 0), 2)
     cv2.imshow("Result", frame)
-    return is_drawn,startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max], frame
+    return is_drawn, startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max], frame
+
 
 def write_video(video, frame):
     video.write(frame)
 
-#terrible implementation
+# terrible implementation
+
 
 def main():
     # output_video = OutputVideoWriter('./output.avi',1,240,352,True)
     output_filename = "./new1.avi"
 
-
     SUCCESS = True
 
-    item = Item('syringe_body',1)
-
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("-td", "--templatedir", required=True, help="Path to template directory")
-    arg_parser.add_argument("-v", "--videofile", required=False, help="Path to the video file")
-    args = vars(arg_parser.parse_args())
-    (templates, tH, tW) = template_processing(args["templatedir"])
+    arg_parser.add_argument('-td', action='append', dest='tempdirs',
+                            default=[], required=True, help="Paths to template directories")
+    arg_parser.add_argument("-v", action='store', dest="videofile",
+                            required=False, help="Path to the video file")
+    args = arg_parser.parse_args()
+    item = []
+    size = len(args.tempdirs)
+    for i in range(0, size):
+        item.append(Item('heart', 1))
+        item[i].template_processing(args.tempdirs[i])
 
-    print(args['videofile'])
+    print(args.videofile)
 
-    if args['videofile'] is None:
-        cap = cv2.VideoCapture(0)              #setting input to webcam/live video
-        #cap = make_240p(cap)
+    if args.videofile is None:
+        cap = cv2.VideoCapture(0)  # setting input to webcam/live video
+        # cap = make_240p(cap)
     else:
         try:
-            cap = cv2.VideoCapture(args['videofile'])         #checking if input is through a video file
+            # checking if input is through a video file
+            cap = cv2.VideoCapture(args.videofile)
             cap = make_240p(cap)
         except:
             print("Error in checking the path to the video file.")
@@ -158,18 +149,19 @@ def main():
     ret, frame = cap.read()
     hheight, wwidth, llayers = frame.shape
     writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
-                             25, (wwidth,hheight), True)
+                             25, (wwidth, hheight), True)
 
     while True and SUCCESS:
         ret, frame = cap.read()
         SUCCESS = ret
         if not SUCCESS:
             break
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)     #converting the video to grayscale to proceed with extraction of edges
-        found = []
-
-        for i in range(len(templates)):
-            found.append(None)
+        # converting the video to grayscale to proceed with extraction of edges
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        for i in range(0, size):
+            item[i].found = []
+            for j in range(len(item[i].templates)):
+                item[i].found.append(None)
 
         for scale in np.linspace(0.2, 1.0, 20)[::-1]:
 
@@ -178,40 +170,79 @@ def main():
 
             break_flag = 0
 
-            for i in range(len(templates)):
-                if resized.shape[0] < tH[i] or resized.shape[0] < tW[i]:
-                    break_flag = 1
+            for i in range(0, size):
+                for j in range(len(item[i].templates)):
+                    if resized.shape[0] < item[i].tH[j] or resized.shape[0] < item[i].tW[j]:
+                        break_flag = 1
 
             if break_flag == 1:
                 break
 
-
-            edged = cv2.Canny(resized, 50,100)           #using Canny edge algorithm to extract edges from the video
+            # using Canny edge algorithm to extract edges from the video
+            edged = cv2.Canny(resized, 50, 100)
             cv2.imshow('abv', edged)
+            maxVal = []
+            maxLoc = []
+            minVal = []
 
-            (maxVal, maxLoc, minVal) = match_templates(r, edged, templates, found, cv2.TM_CCOEFF_NORMED)
+            for i in range(0, size):
+                (a, b, c) = match_templates(
+                    r, edged, item[i].templates, item[i].found, cv2.TM_CCOEFF_NORMED)
+                maxVal.append(a)
+                maxLoc.append(b)
+                minVal.append(c)
 
+        startX = []
+        startY = []
+        endX = []
+        endY = []
 
-        (startX, startY, endX, endY) = localise_match(found, maxLoc, found, tH, tW, r)
+        for i in range(0, size):
+            (a, b, c, d) = localise_match(
+                item[i].found, maxLoc[i], item[i].found, item[i].tH, item[i].tW, r)
+            startX.append(a)
+            startY.append(b)
+            endX.append(c)
+            endY.append(d)
 
-        is_drawn, boxSX, boxSY, boxEX, boxEY, modframe = draw_match(frame, maxVal, minVal, Config.THRESH_MAX, Config.THRESH_MIN, startX, startY, endX, endY)
-        writer.write(modframe)
+        is_drawn = []
+        boxSX = []
+        boxSY = []
+        boxEX = []
+        boxEY = []
+        modframe = []
 
-        if is_drawn:
-            item.x_abscissa = (boxSX+boxEX)/2           #setting the x and y coordinates to be logged into the log file
-            item.y_ordinate = (boxSY+boxEY)/2
-        else :
-            item.x_abscissa = None
-            item.y_ordinate = None
+        for i in range(0, size):
+            if i == 0:
+                a, b, c, d, e, f = draw_match(
+                    frame, maxVal[i], minVal[i], Config.THRESH_MAX, Config.THRESH_MIN, startX[i], startY[i], endX[i], endY[i], 1)
+            else:
+                a, b, c, d, e, f = draw_match(
+                    modframe[i - 1], maxVal[i], minVal[i], Config.THRESH_MAX, Config.THRESH_MIN, startX[i], startY[i], endX[i], endY[i], 1)
 
-        print("itemx",item.x_abscissa, "itemy",item.y_ordinate)
-        item.log_position()                          #logging the coordinates into a file
-        Config.fps.update()
+            is_drawn.append(a)
+            boxSX.append(b)
+            boxSY.append(c)
+            boxEX.append(d)
+            boxEY.append(e)
+            modframe.append(f)
+        writer.write(modframe[size - 1])
+
+        for i in range(0, size):
+            if is_drawn[i]:
+                # setting the x and y coordinates to be logged into the log
+                # file
+                item[i].x_abscissa = (boxSX[i] + boxEX[i]) / 2
+                item[i].y_ordinate = (boxSY[i] + boxEY[i]) / 2
+            else:
+                item[i].x_abscissa = None
+                item[i].y_ordinate = None
+
+        for i in range(0, size):
+            item[i].log_position()  # logging the coordinates into a file
 
         if cv2.waitKey(1) == 27:
             break
-
-    Config.fps.stop()
 
     cap.release()
     # output_video.release_video()
