@@ -6,6 +6,7 @@ import os
 import time
 import numpy as np
 from Item import Item
+from utilities import printProgressBar
 # from video_writer import OutputVideoWriter
 import Config
 
@@ -103,6 +104,9 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
         else:
             cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[
                 index_of_max], endY[index_of_max]), (0, 255, 0), 2)
+        Config.fps.stop()
+        cv2.putText(frame, "Elapsed time: {:.2f}".format(Config.fps.elapsed()),Config.position_elapsed, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
+        cv2.putText(frame,"FPS: {:.2f}".format(Config.fps.fps()), Config.position_fps, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
     cv2.imshow("Result", frame)
     return is_drawn, startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max], frame
 
@@ -115,7 +119,7 @@ def write_video(video, frame):
 
 def main():
     # output_video = OutputVideoWriter('./output.avi',1,240,352,True)
-    output_filename = "./new1.avi"
+    output_filename = "../output/output.avi"
 
     SUCCESS = True
 
@@ -133,6 +137,9 @@ def main():
 
     print(args.videofile)
 
+    number_of_frame = 0
+    frame_count = 0 
+
     if args.videofile is None:
         cap = cv2.VideoCapture(0)  # setting input to webcam/live video
         # cap = make_240p(cap)
@@ -141,6 +148,8 @@ def main():
             # checking if input is through a video file
             cap = cv2.VideoCapture(args.videofile)
             cap = make_240p(cap)
+            number_of_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            print(number_of_frame)
         except:
             print("Error in checking the path to the video file.")
             print("Please check the path to the video file.")
@@ -150,6 +159,8 @@ def main():
     hheight, wwidth, llayers = frame.shape
     writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth, hheight), True)
+
+    printProgressBar(0, number_of_frame, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
     while True and SUCCESS:
         ret, frame = cap.read()
@@ -241,9 +252,13 @@ def main():
         for i in range(0, size):
             item[i].log_position()  # logging the coordinates into a file
 
+        frame_count += 1
+        printProgressBar(frame_count + 1, number_of_frame, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        Config.fps.update()
         if cv2.waitKey(1) == 27:
             break
 
+    Config.fps.stop()
     cap.release()
     # output_video.release_video()
     writer.release()

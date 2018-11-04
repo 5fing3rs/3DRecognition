@@ -34,7 +34,7 @@ def generate_template(video_stream):
     count = 0 
     success = True
     while success:
-        if count%90 == 0:
+        if count%15 == 0:
             # cv2.imwrite("../data/syringe_body/templates/%c_syringe_body%d.jpg" % (video_stream[-5],count), image)
             # resize_image("../data/syringe_body/templates/%c_syringe_body%d.jpg" % (video_stream[-5],count), 250)
             tokenize = video_stream.split('/')
