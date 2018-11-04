@@ -6,6 +6,7 @@ import os
 import time
 import numpy as np
 from Item import Item
+from utilities import printProgressBar
 # from video_writer import OutputVideoWriter
 import Config
 
@@ -80,7 +81,7 @@ def localise_match(found, maxLoc, templates, tH, tW, r):
 # picks the brightest detection out of the set of bright pixel
 
 
-def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY, number):
+def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, endX, endY, number, articlename):
 
     max_of_all = maxVal[0]
     index_of_max = 0
@@ -97,12 +98,21 @@ def draw_match(frame, maxVal, minVal, THRESH_MAX, THRESH_MIN, startX, startY, en
         is_drawn = True
         # print(max_of_all, minVal[index_of_max])
         # if minVal[index_of_max] > THRESH_MIN:
+        font = cv2.FONT_HERSHEY_SIMPLEX
         if number == 1:
             cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[
                 index_of_max], endY[index_of_max]), (0, 0, 255), 2)
+            cv2.putText(frame,articlename,(startX[index_of_max], startY[index_of_max]-3), font, 0.5,(0,0,255),1,cv2.LINE_AA)
         else:
             cv2.rectangle(frame, (startX[index_of_max], startY[index_of_max]), (endX[
                 index_of_max], endY[index_of_max]), (0, 255, 0), 2)
+            cv2.putText(frame,articlename,(startX[index_of_max], startY[index_of_max]-3), font, 0.5,(0,0,255),1,cv2.LINE_AA)
+
+
+        Config.fps.stop()
+        cv2.putText(frame, "Elapsed time: {:.2f}".format(Config.fps.elapsed()),Config.position_elapsed, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
+        cv2.putText(frame,"FPS: {:.2f}".format(Config.fps.fps()), Config.position_fps, Config.font, Config.fontScale, Config.fontColor, Config.lineType)
+
     cv2.imshow("Result", frame)
     return is_drawn, startX[index_of_max], startY[index_of_max], endX[index_of_max], endY[index_of_max], frame
 
@@ -115,7 +125,9 @@ def write_video(video, frame):
 
 def main():
     # output_video = OutputVideoWriter('./output.avi',1,240,352,True)
-    output_filename = "./new1.avi"
+
+    output_filename = "../output/output.avi"
+
 
     SUCCESS = True
 
@@ -133,6 +145,10 @@ def main():
 
     print(args.videofile)
 
+
+    number_of_frame = 0
+    frame_count = 0 
+
     if args.videofile is None:
         cap = cv2.VideoCapture(0)  # setting input to webcam/live video
         # cap = make_240p(cap)
@@ -141,6 +157,8 @@ def main():
             # checking if input is through a video file
             cap = cv2.VideoCapture(args.videofile)
             cap = make_240p(cap)
+            number_of_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            print(number_of_frame)
         except:
             print("Error in checking the path to the video file.")
             print("Please check the path to the video file.")
@@ -150,6 +168,10 @@ def main():
     hheight, wwidth, llayers = frame.shape
     writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth, hheight), True)
+
+
+    printProgressBar(0, number_of_frame, prefix = 'Progress:', suffix = 'Complete', length = 50)
+
 
     while True and SUCCESS:
         ret, frame = cap.read()
@@ -215,10 +237,10 @@ def main():
         for i in range(0, size):
             if i == 0:
                 a, b, c, d, e, f = draw_match(
-                    frame, maxVal[i], minVal[i], Config.THRESH_MAX, Config.THRESH_MIN, startX[i], startY[i], endX[i], endY[i], 1)
+                    frame, maxVal[i], minVal[i], Config.THRESH_MAX, Config.THRESH_MIN, startX[i], startY[i], endX[i], endY[i], 1, item[i].article)
             else:
                 a, b, c, d, e, f = draw_match(
-                    modframe[i - 1], maxVal[i], minVal[i], Config.THRESH_MAX, Config.THRESH_MIN, startX[i], startY[i], endX[i], endY[i], 1)
+                    modframe[i - 1], maxVal[i], minVal[i], Config.THRESH_MAX, Config.THRESH_MIN, startX[i], startY[i], endX[i], endY[i], 1, item[i].article)
 
             is_drawn.append(a)
             boxSX.append(b)
@@ -241,9 +263,14 @@ def main():
         for i in range(0, size):
             item[i].log_position()  # logging the coordinates into a file
 
+        frame_count += 1
+        printProgressBar(frame_count + 1, number_of_frame, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        Config.fps.update()
+
         if cv2.waitKey(1) == 27:
             break
 
+    Config.fps.stop()
     cap.release()
     # output_video.release_video()
     writer.release()
