@@ -8,7 +8,11 @@ from Item import Item
 # from utilities import printProgressBar
 # from video_writer import OutputVideoWriter
 import Config
-import threading
+from threading import Thread
+from queue import Queue
+from imutils.video import FileVideoStream
+from imutils.video import WebcamVideoStream
+import time
 
 item_list = []
 # setting video resolution
@@ -65,7 +69,7 @@ def match_templates(ratio, edged, templates, found, j, method=cv2.TM_CCOEFF_NORM
         item_list[j].max_val.append(1)
         item_list[j].min_val.append(1)
         item_list[j].max_loc.append(1)
-        threads.append(threading.Thread(target=multi_match, args=(ratio, edged, template, method, i, j,)))
+        threads.append(Thread(target=multi_match, args=(ratio, edged, template, method, i, j,)))
     for i in threads:
         i.start()
     for i in threads:
@@ -181,12 +185,14 @@ def main():
     if args.videofile is None:
         cap = cv2.VideoCapture(0)  # setting input to webcam/live video
         # cap = make_240p(cap)
+
     else:
         try:
             # checking if input is through a video file
-            cap = cv2.VideoCapture(args.videofile)
+            cap = FileVideoStream(args.videofile).start()
+            # cap = cv2.VideoCapture(args.videofile)
             cap = make_240p(cap)
-            number_of_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            # number_of_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             print(number_of_frame)
         except:
             print("Error in checking the path to the video file.")
@@ -194,15 +200,18 @@ def main():
             return
 
     ret, frame = cap.read()
-    hheight, wwidth, _ = frame.shape    # '_' had llayers
-    writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
-                             25, (wwidth, hheight), True)
+    # hheight, wwidth, _ = frame.shape    # '_' had llayers
+    # writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
+    #                          25, (wwidth, hheight), True)
 
     # printProgressBar(0, number_of_frame, prefix='Progress:',
                      # suffix='Complete', length=50)
 
-    while True and success:
-        ret, frame = cap.read()
+
+    time.sleep(1.0)
+    while success:
+        # ret, frame = cap.read()
+        frame = cap.read()
         success = ret
         if not success:
             break
@@ -283,7 +292,7 @@ def main():
             modframe.append(ret_frame)
             pixel_pos.append(index_of_max)
 
-        writer.write(modframe[item_types - 1])
+        # writer.write(modframe[item_types - 1])
 
         for i in range(0, item_types):
             if is_drawn[i]:
@@ -311,7 +320,7 @@ def main():
     Config.fps.stop()
     cap.release()
     # output_video.release_video()
-    writer.release()
+    # writer.release()
     cv2.destroyAllWindows()
 
 
