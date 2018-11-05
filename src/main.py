@@ -5,7 +5,7 @@ import imutils
 import cv2
 import numpy as np
 from Item import Item
-# from utilities import printProgressBar
+from utilities import printProgressBar
 # from video_writer import OutputVideoWriter
 import Config
 from threading import Thread
@@ -15,33 +15,6 @@ from imutils.video import WebcamVideoStream
 import time
 
 item_list = []
-# setting video resolution
-def make_1080p(cap):
-    """ Convert to 1080p """
-    cap.set(3, 1920)
-    cap.set(4, 1080)
-    return cap
-
-
-def make_720p(cap):
-    """ Convert to 720p """
-    cap.set(3, 1280)
-    cap.set(4, 720)
-    return cap
-
-
-def make_480p(cap):
-    """ Convert to 480p """
-    cap.set(3, 640)
-    cap.set(4, 480)
-    return cap
-
-
-def make_240p(cap):
-    """ Convert to 240p """
-    cap.set(3, 352)
-    cap.set(4, 240)
-    return cap
 
 def multi_match(ratio, edged, template, method, i, j):
     global item_list
@@ -115,14 +88,8 @@ def draw_match(frame, max_val, thresh_max,
             index_of_max = iterator
         iterator += 1
 
-    # mini_frame = np.zeros((frame.shape[0], frame.shape[1], frame.shape[2]))
-    # mini_frame[startY[index_of_max] : endY[index_of_max]+1, startX[index_of_max]: endX[index_of_max]+1, :] = frame[startY[index_of_max] : endY[index_of_max]+1, startX[index_of_max]: endX[index_of_max]+1, :]
-    # mini_frame = frame[startY[index_of_max] : endY[index_of_max]+1, startX[index_of_max]: endX[index_of_max]+1, :]
-
     if max_of_all > thresh_max:
         is_drawn = True
-        # print(max_of_all, min_val[index_of_max])
-        # if min_val[index_of_max] > thresh_min:
         font = cv2.FONT_HERSHEY_SIMPLEX
         if number == 1:
             cv2.rectangle(frame, (startx_coord[index_of_max], starty_coord[index_of_max]), (endx_coord[
@@ -204,8 +171,8 @@ def main():
     # writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
     #                          25, (wwidth, hheight), True)
 
-    # printProgressBar(0, number_of_frame, prefix='Progress:',
-                     # suffix='Complete', length=50)
+    printProgressBar(0, number_of_frame, prefix='Progress:',
+                     suffix='Complete', length=50)
 
 
     time.sleep(1.0)
@@ -310,8 +277,8 @@ def main():
             item_list[i].log_position()  # logging the coordinates into a file
 
         frame_count += 1
-        # printProgressBar(frame_count + 1, number_of_frame,
-        #                  prefix='Progress:', suffix='Complete', length=50)
+        printProgressBar(frame_count + 1, number_of_frame,
+                         prefix='Progress:', suffix='Complete', length=50)
         Config.fps.update()
 
         if cv2.waitKey(1) == 27:
