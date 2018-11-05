@@ -21,20 +21,22 @@ class Item(object):
         self.x_abscissa = None
         self.y_ordinate = None
         self.article = article
-        self.json_file_name = "../output/%s/%d/log.json" % (article, identification)
-        self.csv_file = "../output/%s/log.csv" % (article)
-        exists = os.path.isfile(self.json_file_name)
-        if exists:
-            os.remove(self.json_file_name)
-        with open(self.json_file_name, mode = 'w', encoding= 'utf-8') as f:
-            json.dump([],f)
+        self.csv_file = None
+        self.set_file_name()
+        
+
+    def set_file_name(self):
+        _time_stamp = time.time()
+        _time_stamp = datetime.datetime.fromtimestamp(_time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+        self.csv_file = "../output/%s/log_%s.csv" % (self.article, _time_stamp)
+        exists = os.path.isfile(self.csv_file)
         with open(self.csv_file, 'a') as file:
             writer = csv.writer(file)
             writer.writerow(['X', 'Y', 'Time Stamp'])
 
-
-
     def log_position(self):
+        """Log position of the article into a csv 
+        file."""
         time_stamp = time.time()
         time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
         data = [
@@ -45,19 +47,6 @@ class Item(object):
         with open(self.csv_file, 'a') as file:
             writer = csv.writer(file)
             writer.writerow(data)
-
-        # data = {
-        #     "x" : self.x_abscissa,
-        #     "y" : self.y_ordinate,
-        #     "time_stamp" : time_stamp
-        # }
-        # feeds = []
-        # with open(self.json_file_name, mode = 'r', encoding= 'utf-8') as feedsjson:
-        #     feeds=json.load(feedsjson)
-        # with open(self.json_file_name, mode = 'w', encoding= 'utf-8') as feedsjson:
-        #     entry = data
-        #     feeds.append(entry)
-        #     json.dump(feeds, feedsjson,indent=4)
 
     def template_processing(self, template_directory):
         """Extracts templates from template_directory &
@@ -71,6 +60,6 @@ class Item(object):
                 tempH, tempW = self.templates[-1].shape[:2]
                 self.height.append(tempH)
                 self.width.append(tempW)
-                cv2.imshow("Template" + str(len(self.templates)) + template_directory, self.templates[-1])
+                # cv2.imshow("Template" + str(len(self.templates)) + template_directory, self.templates[-1])
             else:
                 pass
