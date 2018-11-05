@@ -11,8 +11,8 @@ import cv2
 class Item(object):
     def __init__(self, article, identification):
         self.templates = []
-        self.tH = []
-        self.tW = []
+        self.height = []
+        self.width = []
         self.found = []
         self.identification = identification
         self.x_abscissa = None
@@ -48,7 +48,7 @@ class Item(object):
         #     "y" : self.y_ordinate,
         #     "time_stamp" : time_stamp
         # }
-        # feeds = [] 
+        # feeds = []
         # with open(self.json_file_name, mode = 'r', encoding= 'utf-8') as feedsjson:
         #     feeds=json.load(feedsjson)
         # with open(self.json_file_name, mode = 'w', encoding= 'utf-8') as feedsjson:
@@ -59,7 +59,7 @@ class Item(object):
 
 
 
-   
+
 # extracting templates from template_directory to use it for match template
 
 
@@ -73,9 +73,8 @@ class Item(object):
                 self.templates[-1] = cv2.cvtColor(self.templates[-1], cv2.COLOR_BGR2GRAY)
                 self.templates[-1] = cv2.Canny(self.templates[-1], 50, 100)
                 tempH, tempW = self.templates[-1].shape[:2]
-                self.tH.append(tempH)
-                self.tW.append(tempW)
+                self.height.append(tempH)
+                self.width.append(tempW)
                 cv2.imshow("Template" + str(len(self.templates)) + template_directory, self.templates[-1])
             else:
                 pass
-

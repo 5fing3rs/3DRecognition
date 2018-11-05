@@ -46,10 +46,10 @@ def match_templates(ratio, edged, templates, found, method=cv2.TM_CCOEFF_NORMED)
     max_loc = []
     max_val = []
     min_val = []
-    for i in range(len(templates)):
+    for i, template in enumerate(templates):
 
         result = cv2.matchTemplate(
-            edged, templates[i], method)
+            edged, template, method)
         (ret_minval, ret_maxval, _, ret_maxloc) = cv2.minMaxLoc(result)
         max_val.append(ret_maxval)
         min_val.append(ret_minval)
@@ -60,7 +60,7 @@ def match_templates(ratio, edged, templates, found, method=cv2.TM_CCOEFF_NORMED)
     return max_val, max_loc, min_val
 
 
-def localise_match(found, max_loc, templates, tH, tW, ratio):
+def localise_match(found, max_loc, templates, height, width, ratio):
     """ Calculates the bounding box for the region of interest """
 
     startx_coord = []
@@ -70,20 +70,20 @@ def localise_match(found, max_loc, templates, tH, tW, ratio):
 
     for i in range(len(templates)):
         (_, max_loc[i], ratio) = found[i]
-        (startX1, startY1) = (
+        (startx, starty) = (
             int(max_loc[i][0] * ratio), int(max_loc[i][1] * ratio))
-        (endX1, endY1) = (
-            int((max_loc[i][0] + tW[i]) * ratio), int((max_loc[i][1] + tH[i]) * ratio))
+        (endx, endy) = (
+            int((max_loc[i][0] + width[i]) * ratio), int((max_loc[i][1] + height[i]) * ratio))
 
-        startx_coord.append(startX1)
-        starty_coord.append(startY1)
-        endx_coord.append(endX1)
-        endy_coord.append(endY1)
+        startx_coord.append(startx)
+        starty_coord.append(starty)
+        endx_coord.append(endx)
+        endy_coord.append(endy)
 
     return startx_coord, starty_coord, endx_coord, endy_coord
 
 
-def draw_match(frame, max_val, min_val, THRESH_MAX, THRESH_MIN,
+def draw_match(frame, max_val, thresh_max,
                startx_coord, starty_coord, endx_coord, endy_coord, number, articlename):
     """ Picks the brightest pixel out of the set of bright pixels and draws bounding box """
 
@@ -98,10 +98,10 @@ def draw_match(frame, max_val, min_val, THRESH_MAX, THRESH_MIN,
             index_of_max = iterator
         iterator += 1
 
-    if max_of_all > THRESH_MAX:
+    if max_of_all > thresh_max:
         is_drawn = True
         # print(max_of_all, min_val[index_of_max])
-        # if min_val[index_of_max] > THRESH_MIN:
+        # if min_val[index_of_max] > thresh_min:
         font = cv2.FONT_HERSHEY_SIMPLEX
         if number == 1:
             cv2.rectangle(frame, (startx_coord[index_of_max], starty_coord[index_of_max]), (endx_coord[
@@ -205,8 +205,8 @@ def main():
 
             for i in range(0, item_types):
                 for j in range(len(item_list[i].templates)):
-                    if (resized.shape[0] < item_list[i].tH[j] or
-                            resized.shape[0] < item_list[i].tW[j]):
+                    if (resized.shape[0] < item_list[i].height[j] or
+                            resized.shape[0] < item_list[i].width[j]):
                         break_flag = 1
 
             if break_flag == 1:
@@ -233,7 +233,7 @@ def main():
 
         for i in range(0, item_types):
             (ret_startx, ret_starty, ret_endx, ret_endy) = localise_match(item_list[i].found, max_loc[i], item_list[i].found,
-                                                                          item_list[i].tH, item_list[i].tW, ratio)
+                                                                          item_list[i].height, item_list[i].width, ratio)
             startx_coord.append(ret_startx)
             starty_coord.append(ret_starty)
             endx_coord.append(ret_endx)
@@ -250,10 +250,10 @@ def main():
         for i in range(0, item_types):
             if i == 0:
                 ret_isdrawn, index_of_max, ret_frame = draw_match(
-                    frame, max_val[i], min_val[i], Config.THRESH_MAX, Config.THRESH_MIN, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, item_list[i].article)
+                    frame, max_val[i], Config.thresh_max, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, item_list[i].article)
             else:
                 ret_isdrawn, index_of_max, ret_frame = draw_match(
-                    modframe[i - 1], max_val[i], min_val[i], Config.THRESH_MAX, Config.THRESH_MIN, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, item_list[i].article)
+                    modframe[i - 1], max_val[i], min_val[i], Config.thresh_max, Config.thresh_min, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, item_list[i].article)
 
             is_drawn.append(ret_isdrawn)
 
