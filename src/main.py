@@ -5,13 +5,13 @@ import imutils
 import cv2
 import numpy as np
 from Item import Item
-from utilities import printProgressBar
+# from utilities import printProgressBar
 # from video_writer import OutputVideoWriter
 import Config
+import threading
 
+item_list = []
 # setting video resolution
-
-
 def make_1080p(cap):
     """ Convert to 1080p """
     cap.set(3, 1920)
@@ -39,26 +39,39 @@ def make_240p(cap):
     cap.set(4, 240)
     return cap
 
+def multi_match(ratio, edged, template, method, i, j):
+    global item_list
+    result = cv2.matchTemplate(
+        edged, template, method)
+    (ret_minval, ret_maxval, _, ret_maxloc) = cv2.minMaxLoc(result)
 
-def match_templates(ratio, edged, templates, found, method=cv2.TM_CCOEFF_NORMED):
+    item_list[j].max_val[i] = (ret_maxval)
+    item_list[j].min_val[i] = (ret_minval)
+    item_list[j].max_loc[i] = (ret_maxloc)
+
+    if item_list[j].found[i] is None or item_list[j].max_val[i] > item_list[j].found[i][0]:
+        item_list[j].found[i] = (item_list[j].max_val[i], item_list[j].max_loc[i], ratio)
+
+def match_templates(ratio, edged, templates, found, j, method=cv2.TM_CCOEFF_NORMED):
     """ Gets the brightest and the dimmest pixel from the matched matrix """
 
-    max_loc = []
-    max_val = []
-    min_val = []
+    global item_list
+    item_list[j].max_loc = []
+    item_list[j].max_val = []
+    item_list[j].min_val = []
+    threads = []
+
     for i, template in enumerate(templates):
+        item_list[j].max_val.append(1)
+        item_list[j].min_val.append(1)
+        item_list[j].max_loc.append(1)
+        threads.append(threading.Thread(target=multi_match, args=(ratio, edged, template, method, i, j,)))
+    for i in threads:
+        i.start()
+    for i in threads:
+        i.join()
 
-        result = cv2.matchTemplate(
-            edged, template, method)
-        (ret_minval, ret_maxval, _, ret_maxloc) = cv2.minMaxLoc(result)
-        max_val.append(ret_maxval)
-        min_val.append(ret_minval)
-        max_loc.append(ret_maxloc)
-        if found[i] is None or max_val[i] > found[i][0]:
-            found[i] = (max_val[i], max_loc[i], ratio)
-
-    return max_val, max_loc, min_val
-
+    return item_list[j].max_val, item_list[j].max_loc, item_list[j].min_val
 
 def localise_match(found, max_loc, templates, height, width, ratio):
     """ Calculates the bounding box for the region of interest """
@@ -97,6 +110,10 @@ def draw_match(frame, max_val, thresh_max,
             max_of_all = i
             index_of_max = iterator
         iterator += 1
+
+    # mini_frame = np.zeros((frame.shape[0], frame.shape[1], frame.shape[2]))
+    # mini_frame[startY[index_of_max] : endY[index_of_max]+1, startX[index_of_max]: endX[index_of_max]+1, :] = frame[startY[index_of_max] : endY[index_of_max]+1, startX[index_of_max]: endX[index_of_max]+1, :]
+    # mini_frame = frame[startY[index_of_max] : endY[index_of_max]+1, startX[index_of_max]: endX[index_of_max]+1, :]
 
     if max_of_all > thresh_max:
         is_drawn = True
@@ -140,7 +157,7 @@ def main():
     output_filename = "../output/output.avi"
 
     success = True
-    item_list = []
+
 
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-td', action='append', dest='tempdirs',
@@ -181,14 +198,16 @@ def main():
     writer = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth, hheight), True)
 
-    printProgressBar(0, number_of_frame, prefix='Progress:',
-                     suffix='Complete', length=50)
+    # printProgressBar(0, number_of_frame, prefix='Progress:',
+                     # suffix='Complete', length=50)
 
     while True and success:
         ret, frame = cap.read()
         success = ret
         if not success:
             break
+        # print("fdgfd"+str(type(frame)))
+        # print(type(mini_frame))
         # converting the video to grayscale to proceed with extraction of edges
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         for i in range(0, item_types):
@@ -221,7 +240,7 @@ def main():
 
             for i in range(0, item_types):
                 (ret_maxval, ret_maxloc, ret_minval) = match_templates(ratio, edged, item_list[i].templates,
-                                                                       item_list[i].found, cv2.TM_CCOEFF_NORMED)
+                                                                       item_list[i].found, i, cv2.TM_CCOEFF_NORMED)
                 max_val.append(ret_maxval)
                 max_loc.append(ret_maxloc)
                 min_val.append(ret_minval)
@@ -282,8 +301,8 @@ def main():
             item_list[i].log_position()  # logging the coordinates into a file
 
         frame_count += 1
-        printProgressBar(frame_count + 1, number_of_frame,
-                         prefix='Progress:', suffix='Complete', length=50)
+        # printProgressBar(frame_count + 1, number_of_frame,
+        #                  prefix='Progress:', suffix='Complete', length=50)
         Config.fps.update()
 
         if cv2.waitKey(1) == 27:

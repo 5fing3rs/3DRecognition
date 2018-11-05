@@ -14,6 +14,9 @@ class Item(object):
         self.height = []
         self.width = []
         self.found = []
+        self.max_val = []
+        self.min_val = []
+        self.max_loc = []
         self.identification = identification
         self.x_abscissa = None
         self.y_ordinate = None
@@ -55,13 +58,6 @@ class Item(object):
         #     entry = data
         #     feeds.append(entry)
         #     json.dump(feeds, feedsjson,indent=4)
-
-
-
-
-
-# extracting templates from template_directory to use it for match template
-
 
     def template_processing(self, template_directory):
         """Extracts templates from template_directory &
