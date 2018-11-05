@@ -1,9 +1,11 @@
-import cv2 
+import cv2
 import threading
 
 class Detector(object):
     def __init__(self, thresh_max, thresh_min):
         self.item_list = []
+        self.max_val = []
+        self.max_loc = []
         self.thresh_max = thresh_max
         self.thresh_min = thresh_min
 
@@ -13,7 +15,6 @@ class Detector(object):
         (ret_minval, ret_maxval, _, ret_maxloc) = cv2.minMaxLoc(result)
 
         self.item_list[j].max_val[i] = (ret_maxval)
-        self.item_list[j].min_val[i] = (ret_minval)
         self.item_list[j].max_loc[i] = (ret_maxloc)
 
         if self.item_list[j].found[i] is None or self.item_list[j].max_val[i] > self.item_list[j].found[i][0]:
@@ -24,12 +25,10 @@ class Detector(object):
 
         self.item_list[j].max_loc = []
         self.item_list[j].max_val = []
-        self.item_list[j].min_val = []
         threads = []
 
         for i, template in enumerate(templates):
             self.item_list[j].max_val.append(1)
-            self.item_list[j].min_val.append(1)
             self.item_list[j].max_loc.append(1)
             threads.append(threading.Thread(target=self.multi_match, args=(ratio, edged, template, method, i, j,)))
         for i in threads:
@@ -37,4 +36,4 @@ class Detector(object):
         for i in threads:
             i.join()
 
-        return self.item_list[j].max_val, self.item_list[j].max_loc, self.item_list[j].min_val
+        return self.item_list[j].max_val, self.item_list[j].max_loc
