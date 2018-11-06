@@ -118,7 +118,7 @@ def main():
         modframe = []
         pixel_pos = []
 
-        item_threads = []
+
         ##########################
 
         # ret, frame = cap.read()
@@ -161,12 +161,13 @@ def main():
 
             cv2.imshow('abv', edged)
 
-
+            item_threads = []
             for i in range(0, item_types):
                 DetectorD.max_val.append(1)
                 DetectorD.max_loc.append(1)
                 item_threads.append(threading.Thread(target=item_threading, args=(ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
 
+            
             for i in item_threads:
                 i.start()
             for i in item_threads:
