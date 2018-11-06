@@ -15,6 +15,10 @@ def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals =
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
+<<<<<<< HEAD
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+    Print New Line on Complete
+=======
     estimated_time = None
     if fps != 0:
         estimated_time = (total-iteration)/(fps)
@@ -24,5 +28,6 @@ def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals =
     estimated_time = "Estimated Time : {:.2f}".format(estimated_time)
     print('\r%s |%s| %s%% %s\t\t%s\t\t%s' % (prefix, bar, percent, suffix, fps, estimated_time), end = '\r')
     # Print New Line on Complete
+>>>>>>> c778532c261d8868a42ee886ef6d8e170fff9ede
     if iteration == total:
         print()
