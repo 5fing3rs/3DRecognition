@@ -3,6 +3,7 @@ import threading
 
 class Detector(object):
     def __init__(self, thresh_max, thresh_min):
+        self.item_threads = []
         self.item_list = []
         self.max_val = []
         self.max_loc = []
@@ -37,3 +38,28 @@ class Detector(object):
             i.join()
 
         return self.item_list[j].max_val, self.item_list[j].max_loc
+
+    def item_threading(self, ratio, edged, templates, found, i):
+
+        ret_maxval, ret_maxloc = self.match_templates(ratio,
+                                                edged,
+                                                templates,
+                                                found,
+                                                i,
+                                                cv2.TM_CCOEFF_NORMED)
+
+        self.max_val[i] = ret_maxval
+        self.max_loc[i] = ret_maxloc
+
+    def reset_item_threads(self):
+        self.item_threads = []
+        
+    def reset_max_loc_val(self):
+        self.max_loc = []
+        self.max_val = []
+
+    def spawn_item_threads(self):
+        for i in self.item_threads:
+            i.start()
+        for i in self.item_threads:
+            i.join()

@@ -1,4 +1,3 @@
-
 def make_1080p(cap):
     """ Convert Input Video 
     to 1080p """
