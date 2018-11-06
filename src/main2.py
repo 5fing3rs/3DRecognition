@@ -23,6 +23,17 @@ def write_video(video, frame):
     video.write(frame)
 
 # terrible implementation
+def item_threading(ratio, edged, templates, found, i):
+
+    ret_maxval, ret_maxloc = DetectorD.match_templates(ratio,
+                                             edged,
+                                             templates,
+                                             found,
+                                             i,
+                                             cv2.TM_CCOEFF_NORMED)
+
+    DetectorD.max_val[i] = ret_maxval
+    DetectorD.max_loc[i] = ret_maxloc
 
 def main():
     """ Main function """
@@ -91,9 +102,8 @@ def main():
     while fvs.more():
 
         #### LIST DECLARATION ####
-        max_val = []
-        max_loc = []
-        min_val = []
+        DetectorD.max_val = []
+        DetectorD.max_loc = []
 
         startx_coord = []
         starty_coord = []
@@ -139,25 +149,24 @@ def main():
             edged = cv2.Canny(resized, 50, 100)
             # cv2.imshow('abv', edged)
 
+            item_threads = []
             for i in range(0, item_types):
-                (ret_maxval,
-                 ret_maxloc,
-                 ret_minval) = DetectorD.match_templates(ratio,
-                                                         edged,
-                                                         DetectorD.item_list[i].templates,
-                                                         DetectorD.item_list[i].found,
-                                                         i,
-                                                         cv2.TM_CCOEFF_NORMED)
-                max_val.append(ret_maxval)
-                max_loc.append(ret_maxloc)
-                min_val.append(ret_minval)
+                DetectorD.max_val.append(1)
+                DetectorD.max_loc.append(1)
+                item_threads.append(threading.Thread(target=item_threading, args=(ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
+
+            for i in item_threads:
+                i.start()
+            for i in item_threads:
+                i.join()
+
 
         for i in range(0, item_types):
             (ret_startx,
              ret_starty,
              ret_endx,
              ret_endy) = localise_match(DetectorD.item_list[i].found,
-                                        max_loc[i],
+                                        DetectorD.max_loc[i],
                                         DetectorD.item_list[i].found,
                                         DetectorD.item_list[i].height,
                                         DetectorD.item_list[i].width,
@@ -172,10 +181,10 @@ def main():
         for i in range(0, item_types):
             if i == 0:
                 ret_isdrawn, index_of_max, ret_frame = draw_match(
-                    frame, max_val[i], Config.thresh_max, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, DetectorD.item_list[i].article)
+                    frame, DetectorD.max_val[i], Config.thresh_max, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, DetectorD.item_list[i].article)
             else:
                 ret_isdrawn, index_of_max, ret_frame = draw_match(
-                    modframe[i - 1], max_val[i], min_val[i], Config.thresh_max, Config.thresh_min, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, DetectorD.item_list[i].article)
+                    modframe[i - 1], DetectorD.max_val[i], Config.thresh_max, startx_coord[i], starty_coord[i], endx_coord[i], endy_coord[i], 1, DetectorD.item_list[i].article)
 
             is_drawn.append(ret_isdrawn)
 
