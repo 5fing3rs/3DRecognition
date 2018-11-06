@@ -39,8 +39,9 @@ def draw_match(frame, max_val, thresh_max,
         iterator += 1
 
     if max_of_all > thresh_max:
-        is_drawn = True
+        is_drawn = True 
         font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1.5
         # if number == 1:
         #     cv2.rectangle(frame, (startx_coord[index_of_max], starty_coord[index_of_max]), (endx_coord[
         #         index_of_max], endy_coord[index_of_max]), (0, 0, 255), 2)
