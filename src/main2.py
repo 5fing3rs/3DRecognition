@@ -99,7 +99,11 @@ def main():
     printProgressBar(0, 0, number_of_frame, prefix='Progress:',
                      suffix='Complete', length=50)
 
+    total_frames = 0
     while fvs.more():
+        total_frames+=1
+        if total_frames % 2 == 0:
+            pass
 
         #### LIST DECLARATION ####
         DetectorD.max_val = []
@@ -113,6 +117,8 @@ def main():
         is_drawn = []
         modframe = []
         pixel_pos = []
+
+        item_threads = []
         ##########################
 
         # ret, frame = cap.read()
@@ -124,6 +130,8 @@ def main():
 
         # converting the video to grayscale to proceed with extraction of edges
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (7,7), 0)
+
         for i in range(0, item_types):
             DetectorD.item_list[i].found = []
             for j in range(len(DetectorD.item_list[i].templates)):
@@ -147,9 +155,13 @@ def main():
 
             # using Canny edge algorithm to extract edges from the video
             edged = cv2.Canny(resized, 50, 100)
-            # cv2.imshow('abv', edged)
+            edged = cv2.dilate(edged, None,iterations=1)
+            edged = cv2.erode(edged, None,iterations=1)
 
-            item_threads = []
+
+            cv2.imshow('abv', edged)
+
+
             for i in range(0, item_types):
                 DetectorD.max_val.append(1)
                 DetectorD.max_loc.append(1)
