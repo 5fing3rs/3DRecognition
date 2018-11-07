@@ -3,6 +3,7 @@
 import argparse
 import imutils
 import cv2
+import time
 import threading
 import sys
 import time
@@ -11,10 +12,13 @@ import numpy as np
 from imutils.video import FileVideoStream, WebcamVideoStream
 from queue import Queue
 from Item import Item
-from utilities import printProgressBar
+from copy import deepcopy
+from utilities import printProgressBar, resize_image
 from video_utils import make_240p, rescale_frame
 from detector import Detector
 from window import Window
+
+
 
 DetectorD = Detector(0.09, -0.02)
 WindowW = Window()
@@ -25,7 +29,6 @@ def write_video(video, frame):
     video.write(frame)
 
 # terrible implementation
-
 
 def main():
     """ Main function """
@@ -48,6 +51,10 @@ def main():
         obj_name = args.tempdirs[i].split('/')
         DetectorD.item_list.append(Item(obj_name[2], 1))
         DetectorD.item_list[i].template_processing(args.tempdirs[i])
+
+    for i, item in enumerate(DetectorD.item_list):
+        for j, tmplt in enumerate(item.templates):
+            DetectorD.item_list[i].templates[j] = resize_image(tmplt, 150)
 
     Config.number_of_frame = 0
     Config.frame_count = 0
@@ -76,9 +83,9 @@ def main():
     writer = cv2.VideoWriter(Config.OUTPUT_FILE, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth, hheight), True)
 
-    # if args.videofile is not None:
-    #     printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
-    #                      suffix='Complete', length=50)
+    if args.videofile is not None:
+        printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
+                         suffix='Complete', length=50)
 
     total_frames = 0
 
@@ -107,10 +114,7 @@ def main():
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
-        frame = rescale_frame(frame, 50)
-        # frame2 = rescale_frame(frame, 50)
-        # cv2.imshow('30', frame1)
-        # cv2.imshow('50', frame2)
+        frame = rescale_frame(frame, Config.degradation_percent)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.medianBlur(gray, 11)                  #Need to experiment
@@ -121,7 +125,6 @@ def main():
                 DetectorD.item_list[i].found.append(None)
 
         for scale in np.linspace(0.2, 1.0, 20)[::-1]:
-
             resized = imutils.resize(gray, width=int(gray.shape[1] * scale))
             ratio = gray.shape[1] / float(resized.shape[1])
 
@@ -129,8 +132,8 @@ def main():
 
             for i in range(0, DetectorD.item_types):
                 for j in range(len(DetectorD.item_list[i].templates)):
-                    if (resized.shape[0] < DetectorD.item_list[i].height[j] or
-                            resized.shape[0] < DetectorD.item_list[i].width[j]):
+                    if (resized.shape[0] < DetectorD.item_list[i].templates[j].shape[0] or
+                            resized.shape[1] < DetectorD.item_list[i].templates[j].shape[1]):
                         break_flag = 1
 
             if break_flag == 1:
@@ -175,10 +178,8 @@ def main():
                 frame, DetectorD.max_val[i], DetectorD.min_val[i], Config.thresh_max, i, DetectorD.item_list[i].article)
             WindowW.is_drawn.append(ret_isdrawn)
             WindowW.pixel_pos.append(index_of_max)
-            print(DetectorD.max_val[i][index_of_max], DetectorD.min_val[i][index_of_max], DetectorD.item_list[i].article)
 
-        ret_frame = rescale_frame(ret_frame, 200)
-        cv2.imshow('retframe', ret_frame)
+        ret_frame = rescale_frame(ret_frame, Config.restoration_percent)
         writer.write(ret_frame)
 
 
@@ -197,9 +198,9 @@ def main():
 
         Config.frame_count += 1
         fps = Config.fps.fps()
-        # if args.videofile is not None:
-        #     printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
-        #                      prefix='Progress:', suffix='Complete', length=50)
+        if args.videofile is not None:
+            printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
+                             prefix='Progress:', suffix='Complete', length=50)
 
         Config.fps.update()
 

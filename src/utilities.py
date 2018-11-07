@@ -3,6 +3,10 @@
 
 from datetime import datetime , timedelta
 import math
+import argparse
+from pathlib import Path
+import cv2
+from PIL import Image
 
 def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
     """
@@ -31,3 +35,12 @@ def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals =
     # Print New Line on Complete
     if iteration == total:
         print()
+
+
+def resize_image(image, basewidth):
+    ''' Resize the generated image with a locked ratio to
+    conform to the base width used for detection'''
+    wpercent = (basewidth / float(image.shape[1]))
+    hsize = int((float(image.shape[0]) * float(wpercent)))
+    image = cv2.resize(image, (basewidth, hsize), interpolation=cv2.INTER_AREA)
+    return image

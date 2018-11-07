@@ -46,7 +46,7 @@ def generate_template(training_video, angle_of_rotation):
         if count % angle_of_rotation == 0:
             template_path = get_template_path(training_video, count)
             cv2.imwrite(template_path, image)
-            resize_image(template_path, 250)
+            resize_image(template_path, 450) #experimenting change to 250 later
         success, image = video_capture.read()
         count += 1
 
