@@ -1,8 +1,10 @@
 '''Module to generate templates of a given Mesh Model'''
 import argparse
+import os
 from pathlib import Path
 import cv2
 from PIL import Image
+from utilities import print_template_generator_ProgressBar
 
 
 def get_template_path(path, count):
@@ -38,17 +40,22 @@ def generate_template(training_video, angle_of_rotation):
     training_video = str(training_video)
     video_capture = cv2.VideoCapture(training_video)
     number_of_frame = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-    print(number_of_frame)
     success, image = video_capture.read()
     count = 0
     success = True
+    print("Generating Templates for {}".format(training_video))
     while success:
         if count % angle_of_rotation == 0:
             template_path = get_template_path(training_video, count)
+            try:
+                os.remove(template_path)
+            except OSError:
+                pass
             cv2.imwrite(template_path, image)
             resize_image(template_path, 250)
         success, image = video_capture.read()
         count += 1
+        print_template_generator_ProgressBar(count, number_of_frame, prefix='Progress:',suffix='Complete', length=50)
 
 
 if __name__ == "__main__":
