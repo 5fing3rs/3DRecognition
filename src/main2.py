@@ -60,7 +60,6 @@ def check_init(args):
         object_name = args.tempdirs[i].split('/')
         check_TemplateDir_corresponsingObject(object_name[2])
 
-
 def main():
     """ Main function """
 

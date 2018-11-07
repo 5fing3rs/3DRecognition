@@ -55,4 +55,3 @@ def print_template_generator_ProgressBar (iteration, total, prefix = '', suffix 
     # Print New Line on Complete
     if iteration == total:
         print()
-
