@@ -14,7 +14,6 @@ from Item import Item
 from utilities import printProgressBar
 from video_utils import make_240p
 from detector import Detector
-# from window import localise_match, draw_match
 from window import Window
 
 DetectorD = Detector(0.09, -0.02)

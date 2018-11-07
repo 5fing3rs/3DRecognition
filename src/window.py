@@ -20,7 +20,7 @@ class Window(object):
         self.is_drawn = []
 
     def reset_pixel_pos(self):
-        self.pixel_pos
+        self.pixel_pos = []
 
     def localise_match(self, found, max_loc, templates, height, width, ratio):
         """ Calculates the bounding box for the region of interest """
@@ -48,8 +48,8 @@ class Window(object):
     def draw_match(self, frame, max_val, thresh_max, number, articlename):
         """ Picks the brightest pixel out of the set of bright pixels and draws bounding box """
 
-        startx_coord = self.starty_coord[number]
-        starty_coord = self.startx_coord[number]
+        startx_coord = self.startx_coord[number]
+        starty_coord = self.starty_coord[number]
         endx_coord = self.endx_coord[number]
         endy_coord = self.endy_coord[number]
 

@@ -9,6 +9,7 @@ class Detector(object):
         self.max_loc = []
         self.thresh_max = thresh_max
         self.thresh_min = thresh_min
+        self.item_types = 0
 
     def multi_match(self, ratio, edged, template, method, i, j):
         result = cv2.matchTemplate(
