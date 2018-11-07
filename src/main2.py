@@ -20,6 +20,7 @@ from window import Window
 DetectorD = Detector(0.09, -0.02)
 WindowW = Window()
 
+
 def write_video(video, frame):
     """ Write to video """
     video.write(frame)
@@ -48,7 +49,6 @@ def main():
         obj_name = args.tempdirs[i].split('/')
         DetectorD.item_list.append(Item(obj_name[2], 1))
         DetectorD.item_list[i].template_processing(args.tempdirs[i])
-
 
     Config.number_of_frame = 0
     Config.frame_count = 0
@@ -79,7 +79,7 @@ def main():
 
     if args.videofile is not None:
         printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
-                        suffix='Complete', length=50)
+                         suffix='Complete', length=50)
 
     total_frames = 0
 
@@ -92,26 +92,25 @@ def main():
         vidflag = fvs.more()
         webflag = False
 
-
+    kernel = np.ones((1,1),np.uint8)        #Need to experiment
 
     while vidflag:
-        total_frames+=1
+        total_frames += 1
         if total_frames % 2 == 0:
-            #taking every other frame
+            # taking every other frame
             pass
 
         #### LIST DECLARATION ####
-        DetectorD.reset_max_loc_val()
+
 
         WindowW.reset_cartesian_list()
-
         WindowW.reset_is_drawn()
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (9,9), 0)
+        gray = cv2.medianBlur(gray, 9)                  #Need to experiment
 
         for i in range(0, DetectorD.item_types):
             DetectorD.item_list[i].found = []
@@ -135,17 +134,19 @@ def main():
                 break
 
             edged = cv2.Canny(resized, 50, 100)
-            edged = cv2.dilate(edged, None,iterations=1)
-            edged = cv2.erode(edged, None,iterations=1)
-
+            #Need to experiment
+            edged = cv2.dilate(edged, None, iterations=1)
+            edged = cv2.erode(edged, None, iterations=1)
 
             cv2.imshow('abv', edged)
 
+            DetectorD.reset_max_loc_val()
             DetectorD.reset_item_threads()
             for i in range(0, DetectorD.item_types):
                 DetectorD.max_val.append(1)
                 DetectorD.max_loc.append(1)
-                DetectorD.item_threads.append(threading.Thread(target=DetectorD.item_threading, args=(ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
+                DetectorD.item_threads.append(threading.Thread(target=DetectorD.item_threading, args=(
+                    ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
 
             DetectorD.spawn_item_threads()
 
@@ -154,16 +155,15 @@ def main():
              ret_starty,
              ret_endx,
              ret_endy) = WindowW.localise_match(DetectorD.item_list[i].found,
-                                        DetectorD.max_loc[i],
-                                        DetectorD.item_list[i].found,
-                                        DetectorD.item_list[i].height,
-                                        DetectorD.item_list[i].width,
-                                        ratio)
+                                                DetectorD.max_loc[i],
+                                                DetectorD.item_list[i].found,
+                                                DetectorD.item_list[i].height,
+                                                DetectorD.item_list[i].width,
+                                                ratio)
             WindowW.startx_coord.append(ret_startx)
             WindowW.starty_coord.append(ret_starty)
             WindowW.endx_coord.append(ret_endx)
             WindowW.endy_coord.append(ret_endy)
-
 
         ret_frame = None
         for i in range(0, DetectorD.item_types):
@@ -191,7 +191,7 @@ def main():
         fps = Config.fps.fps()
         if args.videofile is not None:
             printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
-                            prefix='Progress:', suffix='Complete', length=50)
+                             prefix='Progress:', suffix='Complete', length=50)
 
         Config.fps.update()
 
@@ -208,6 +208,7 @@ def main():
 
     if fvs:
         fvs.stop()
+
 
 if __name__ == '__main__':
     main()
