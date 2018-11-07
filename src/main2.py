@@ -3,7 +3,11 @@
 import argparse
 import imutils
 import cv2
+<<<<<<< HEAD
 import time
+=======
+import os
+>>>>>>> bbb14ccdd00e14acae3c7e9422efc9fcfa05cf1e
 import threading
 import sys
 import time
@@ -23,6 +27,26 @@ from window import Window
 DetectorD = Detector(0.09, -0.02)
 WindowW = Window()
 
+def check_output_dir(args):
+    if not os.path.isdir("../output"):
+        os.makedirs("../output")
+        os.makedirs("../output/output_video")
+        for i in range(0, len(args.tempdirs)):
+            object_name = args.tempdirs[i].split('/')
+            os.makedirs("../output/{}".format(object_name[2]))
+
+def check_output_video_dir():
+    if not os.path.isdir("../output/output_video"):
+        os.makedirs("../output/output_video")
+
+def check_data_dir():
+    if not os.path.isdir("../data"):
+        os.makedirs("../data")
+
+def check_TemplateDir_corresponsingObject(object_name):
+    if not os.path.isdir("../data/{}/templates".format(object_name)):
+        os.makedirs("../data/{}/templates".format(object_name))
+        # print("generate templates for object")
 
 def write_video(video, frame):
     """ Write to video """
@@ -30,6 +54,17 @@ def write_video(video, frame):
 
 # terrible implementation
 
+<<<<<<< HEAD
+=======
+def check_init(args):
+    check_data_dir()
+    check_output_dir(args)
+    check_output_video_dir()
+    for i in range(0, len(args.tempdirs)):
+        object_name = args.tempdirs[i].split('/')
+        check_TemplateDir_corresponsingObject(object_name[2])
+
+>>>>>>> bbb14ccdd00e14acae3c7e9422efc9fcfa05cf1e
 def main():
     """ Main function """
 
@@ -44,6 +79,8 @@ def main():
     arg_parser.add_argument("-v", action='store', dest="videofile",
                             required=False, help="Path to the video file")
     args = arg_parser.parse_args()
+
+    check_init(args)
 
     DetectorD.item_types = len(args.tempdirs)
 
