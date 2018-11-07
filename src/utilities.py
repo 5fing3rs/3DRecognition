@@ -37,7 +37,6 @@ def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals =
         print()
 
 
-<<<<<<< HEAD
 def resize_image(image, basewidth):
     ''' Resize the generated image with a locked ratio to
     conform to the base width used for detection'''
@@ -45,7 +44,6 @@ def resize_image(image, basewidth):
     hsize = int((float(image.shape[0]) * float(wpercent)))
     image = cv2.resize(image, (basewidth, hsize), interpolation=cv2.INTER_AREA)
     return image
-=======
 
 def print_template_generator_ProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
 
@@ -57,4 +55,4 @@ def print_template_generator_ProgressBar (iteration, total, prefix = '', suffix 
     # Print New Line on Complete
     if iteration == total:
         print()
->>>>>>> bbb14ccdd00e14acae3c7e9422efc9fcfa05cf1e
+

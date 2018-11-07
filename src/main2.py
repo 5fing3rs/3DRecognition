@@ -3,11 +3,8 @@
 import argparse
 import imutils
 import cv2
-<<<<<<< HEAD
 import time
-=======
 import os
->>>>>>> bbb14ccdd00e14acae3c7e9422efc9fcfa05cf1e
 import threading
 import sys
 import time
@@ -54,8 +51,7 @@ def write_video(video, frame):
 
 # terrible implementation
 
-<<<<<<< HEAD
-=======
+
 def check_init(args):
     check_data_dir()
     check_output_dir(args)
@@ -64,7 +60,7 @@ def check_init(args):
         object_name = args.tempdirs[i].split('/')
         check_TemplateDir_corresponsingObject(object_name[2])
 
->>>>>>> bbb14ccdd00e14acae3c7e9422efc9fcfa05cf1e
+
 def main():
     """ Main function """
 
