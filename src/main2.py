@@ -167,7 +167,6 @@ def main():
                 DetectorD.max_loc.append(1)
                 item_threads.append(threading.Thread(target=item_threading, args=(ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
 
-            
             for i in item_threads:
                 i.start()
             for i in item_threads:
