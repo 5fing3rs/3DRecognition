@@ -1,3 +1,5 @@
+import cv2
+
 def make_1080p(cap):
     """ Convert Input Video 
     to 1080p """
@@ -28,3 +30,10 @@ def make_240p(cap):
     cap.set(3, 352)
     cap.set(4, 240)
     return cap
+
+def rescale_frame(frame, percent):
+    scale_percent = percent
+    width =  int(frame.shape[1]*percent/100)
+    height = int(frame.shape[0]*percent/100)
+    dimensions = (width, height)
+    return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)

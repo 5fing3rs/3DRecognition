@@ -7,6 +7,7 @@ class Detector(object):
         self.item_list = []
         self.max_val = []
         self.max_loc = []
+        self.min_val = []
         self.thresh_max = thresh_max
         self.thresh_min = thresh_min
         self.item_types = 0
@@ -18,6 +19,7 @@ class Detector(object):
 
         self.item_list[j].max_val[i] = (ret_maxval)
         self.item_list[j].max_loc[i] = (ret_maxloc)
+        self.item_list[j].min_val[i] = (ret_minval)
 
         if self.item_list[j].found[i] is None or self.item_list[j].max_val[i] > self.item_list[j].found[i][0]:
             self.item_list[j].found[i] = (self.item_list[j].max_val[i], self.item_list[j].max_loc[i], ratio)
@@ -27,30 +29,34 @@ class Detector(object):
 
         self.item_list[j].max_loc = []
         self.item_list[j].max_val = []
+        self.item_list[j].min_val = []
         threads = []
 
         for i, template in enumerate(templates):
             self.item_list[j].max_val.append(1)
             self.item_list[j].max_loc.append(1)
+            self.item_list[j].min_val.append(1)
             threads.append(threading.Thread(target=self.multi_match, args=(ratio, edged, template, method, i, j,)))
         for i in threads:
             i.start()
         for i in threads:
             i.join()
 
-        return self.item_list[j].max_val, self.item_list[j].max_loc
+        return self.item_list[j].max_val, self.item_list[j].max_loc, self.item_list[j].min_val
 
     def item_threading(self, ratio, edged, templates, found, i):
 
-        ret_maxval, ret_maxloc = self.match_templates(ratio,
+        ret_maxval, ret_maxloc, ret_minval = self.match_templates(ratio,
                                                 edged,
                                                 templates,
                                                 found,
                                                 i,
                                                 cv2.TM_CCOEFF_NORMED)
 
+        
         self.max_val[i] = ret_maxval
         self.max_loc[i] = ret_maxloc
+        self.min_val[i] = ret_minval
 
     def reset_item_threads(self):
         self.item_threads = []
@@ -58,6 +64,7 @@ class Detector(object):
     def reset_max_loc_val(self):
         self.max_loc = []
         self.max_val = []
+        self.min_val = []
 
     def spawn_item_threads(self):
         for i in self.item_threads:

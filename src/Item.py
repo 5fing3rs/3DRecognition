@@ -57,8 +57,8 @@ class Item(object):
                 self.templates.append(cv2.imread(template_directory + '/' + filename))
                 self.templates[-1] = cv2.cvtColor(self.templates[-1], cv2.COLOR_BGR2GRAY)
                 self.templates[-1] = cv2.Canny(self.templates[-1], 50, 100)
-                # self.templates[-1]= cv2.dilate(self.templates[-1], None, iterations=1)
-                # self.templates[-1] = cv2.erode(self.templates[-1], np.ones((1,1),np.uint8), iterations=1)   #Experiment
+                self.templates[-1]= cv2.dilate(self.templates[-1], None, iterations=1)
+                self.templates[-1] = cv2.erode(self.templates[-1], None, iterations=1)   #Experiment
                 tempH, tempW = self.templates[-1].shape[:2]
                 self.height.append(tempH)
                 self.width.append(tempW)

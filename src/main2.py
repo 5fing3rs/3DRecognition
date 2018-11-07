@@ -12,7 +12,7 @@ from imutils.video import FileVideoStream, WebcamVideoStream
 from queue import Queue
 from Item import Item
 from utilities import printProgressBar
-from video_utils import make_240p
+from video_utils import make_240p, rescale_frame
 from detector import Detector
 from window import Window
 
@@ -76,9 +76,9 @@ def main():
     writer = cv2.VideoWriter(Config.OUTPUT_FILE, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth, hheight), True)
 
-    if args.videofile is not None:
-        printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
-                         suffix='Complete', length=50)
+    # if args.videofile is not None:
+    #     printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
+    #                      suffix='Complete', length=50)
 
     total_frames = 0
 
@@ -107,9 +107,13 @@ def main():
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
+        frame = rescale_frame(frame, 50)
+        # frame2 = rescale_frame(frame, 50)
+        # cv2.imshow('30', frame1)
+        # cv2.imshow('50', frame2)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.medianBlur(gray, 9)                  #Need to experiment
+        gray = cv2.medianBlur(gray, 11)                  #Need to experiment
 
         for i in range(0, DetectorD.item_types):
             DetectorD.item_list[i].found = []
@@ -134,8 +138,8 @@ def main():
 
             edged = cv2.Canny(resized, 50, 100)
             #Need to experiment
-            edged = cv2.dilate(edged, None, iterations=1)
-            edged = cv2.erode(edged, None, iterations=1)
+            # edged = cv2.dilate(edged, None, iterations=1)
+            edged = cv2.erode(edged, kernel, iterations=1)
 
             cv2.imshow('abv', edged)
 
@@ -144,6 +148,7 @@ def main():
             for i in range(0, DetectorD.item_types):
                 DetectorD.max_val.append(1)
                 DetectorD.max_loc.append(1)
+                DetectorD.min_val.append(1)
                 DetectorD.item_threads.append(threading.Thread(target=DetectorD.item_threading, args=(
                     ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
 
@@ -167,11 +172,15 @@ def main():
         ret_frame = None
         for i in range(0, DetectorD.item_types):
             ret_isdrawn, index_of_max, ret_frame = WindowW.draw_match(
-                frame, DetectorD.max_val[i], Config.thresh_max, i, DetectorD.item_list[i].article)
+                frame, DetectorD.max_val[i], DetectorD.min_val[i], Config.thresh_max, i, DetectorD.item_list[i].article)
             WindowW.is_drawn.append(ret_isdrawn)
             WindowW.pixel_pos.append(index_of_max)
+            print(DetectorD.max_val[i][index_of_max], DetectorD.min_val[i][index_of_max], DetectorD.item_list[i].article)
 
+        ret_frame = rescale_frame(ret_frame, 200)
+        cv2.imshow('retframe', ret_frame)
         writer.write(ret_frame)
+
 
         for i in range(0, DetectorD.item_types):
             if WindowW.is_drawn[i]:
@@ -188,9 +197,9 @@ def main():
 
         Config.frame_count += 1
         fps = Config.fps.fps()
-        if args.videofile is not None:
-            printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
-                             prefix='Progress:', suffix='Complete', length=50)
+        # if args.videofile is not None:
+        #     printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
+        #                      prefix='Progress:', suffix='Complete', length=50)
 
         Config.fps.update()
 
