@@ -25,7 +25,7 @@ def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals =
     else:
         estimated_time = int(9999)
     fps = "FPS: {:.2f}".format(fps)
-    
+
     estimated_time = "Estimated Time : {}".format(str(timedelta(seconds=estimated_time)))
     print('\r%s |%s| %s%% %s\t\t%s\t\t%s' % (prefix, bar, percent, suffix, fps, estimated_time), end = '\r')
     # Print New Line on Complete
