@@ -7,7 +7,7 @@ import os
 import json
 import csv
 import cv2
-
+import numpy as np
 class Item(object):
     def __init__(self, article, identification):
         self.templates = []
@@ -23,7 +23,7 @@ class Item(object):
         self.article = article
         self.csv_file = None
         self.set_file_name()
-        
+
 
     def set_file_name(self):
         _time_stamp = time.time()
@@ -35,7 +35,7 @@ class Item(object):
             writer.writerow(['X', 'Y', 'Time Stamp'])
 
     def log_position(self):
-        """Log position of the article into a csv 
+        """Log position of the article into a csv
         file."""
         time_stamp = time.time()
         time_stamp = datetime.datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
@@ -57,6 +57,8 @@ class Item(object):
                 self.templates.append(cv2.imread(template_directory + '/' + filename))
                 self.templates[-1] = cv2.cvtColor(self.templates[-1], cv2.COLOR_BGR2GRAY)
                 self.templates[-1] = cv2.Canny(self.templates[-1], 50, 100)
+                self.templates[-1]= cv2.dilate(self.templates[-1], None, iterations=1)
+                self.templates[-1] = cv2.erode(self.templates[-1], None, iterations=1)   #Experiment
                 tempH, tempW = self.templates[-1].shape[:2]
                 self.height.append(tempH)
                 self.width.append(tempW)
