@@ -128,7 +128,7 @@ def main():
             for i in range(0, DetectorD.item_types):
                 for j in range(len(DetectorD.item_list[i].templates)):
                     if (resized.shape[0] < DetectorD.item_list[i].height[j] or
-                            resized.shape[0] < DetectorD.item_list[i].width[j]):
+                            resized.shape[1] < DetectorD.item_list[i].width[j]):
                         break_flag = 1
 
             if break_flag == 1:
@@ -141,6 +141,7 @@ def main():
 
             cv2.imshow('abv', edged)
 
+            DetectorD.reset_max_loc_val()
             DetectorD.reset_item_threads()
             for i in range(0, DetectorD.item_types):
                 DetectorD.max_val.append(1)
