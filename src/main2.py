@@ -12,7 +12,7 @@ from imutils.video import FileVideoStream, WebcamVideoStream
 from queue import Queue
 from Item import Item
 from utilities import printProgressBar
-from video_utils import make_240p
+from video_utils import make_240p, rescale_frame
 from detector import Detector
 # from window import localise_match, draw_match
 from window import Window
@@ -109,9 +109,10 @@ def main():
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
+        frame = rescale_frame(frame, 50)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (9,9), 0)
+        gray = cv2.medianBlur(gray, 5)
 
         for i in range(0, DetectorD.item_types):
             DetectorD.item_list[i].found = []
@@ -173,6 +174,7 @@ def main():
             WindowW.is_drawn.append(ret_isdrawn)
             WindowW.pixel_pos.append(index_of_max)
 
+        ret_frame = rescale_frame(ret_frame, 200)
         writer.write(ret_frame)
 
         for i in range(0, DetectorD.item_types):

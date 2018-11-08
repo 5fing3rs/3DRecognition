@@ -4,7 +4,7 @@ from imutils.video import FPS
 import time
 
 fps = FPS().start()
-thresh_max = 0.09
+thresh_max = 0.01
 thresh_min = -0.02
 font = cv2.FONT_HERSHEY_SIMPLEX
 position_fps = (460, 70)
