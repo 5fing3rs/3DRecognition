@@ -45,7 +45,7 @@ class Window(object):
         return _startx_coord, _starty_coord, _endx_coord, _endy_coord
 
 
-    def draw_match(self, frame, max_val, min_val, thresh_max, number, articlename):
+    def draw_match(self, frame, max_val, thresh_max, number, articlename):
         """ Picks the brightest pixel out of the set of bright pixels and draws bounding box """
 
         startx_coord = self.startx_coord[number]
@@ -59,25 +59,25 @@ class Window(object):
         iterator = 0
         is_drawn = False
 
-        for iterator, i in enumerate(max_val):
-            if max_of_all < i and min_val[iterator] < Config.thresh_min:
+        for i in max_val:
+            if max_of_all < i:
                 max_of_all = i
                 index_of_max = iterator
-            
+            iterator += 1
 
         if max_of_all > thresh_max:
             is_drawn = True
 
             cv2.rectangle(frame, (startx_coord[index_of_max], starty_coord[index_of_max]), (endx_coord[
-                index_of_max], endy_coord[index_of_max]), (0, 0, 255), 1)
+                index_of_max], endy_coord[index_of_max]), (0, 0, 255), 2)
             cv2.putText(frame, articlename, (startx_coord[index_of_max], starty_coord[index_of_max] - 3),
-                        Config.font, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
+                        Config.font, 0.9, (0, 0, 255), 1, cv2.LINE_AA)
 
         Config.fps.stop()
-        cv2.putText(frame, "Elapsed time: {:.2f}".format(Config.fps.elapsed()), (10,20),
+        cv2.putText(frame, "Elapsed time: {:.2f}".format(Config.fps.elapsed()), Config.position_elapsed,
                     Config.font, Config.fontScale, Config.fontColor, Config.lineType)
         cv2.putText(frame, "FPS: {:.2f}".format(Config.fps.fps()),
-        (10,40), Config.font, Config.fontScale,
+                    Config.position_fps, Config.font, Config.fontScale,
                     Config.fontColor, Config.lineType)
 
         cv2.imshow("Result", frame)

@@ -6,6 +6,7 @@ import cv2
 import threading
 import sys
 import time
+import os
 import Config
 import numpy as np
 from imutils.video import FileVideoStream, WebcamVideoStream
@@ -147,7 +148,7 @@ def main():
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
-        frame = rescale_frame(frame, degradation_percent)
+        frame = rescale_frame(frame, Config.degradation_percent)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.medianBlur(gray, 5)
