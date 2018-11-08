@@ -5,8 +5,8 @@ import time
 import datetime
 
 fps = FPS().start()
-thresh_max = 0.19
-thresh_min = -0.033
+thresh_max = 0.152
+thresh_min = -0.033 #-0.033
 font = cv2.FONT_HERSHEY_SIMPLEX
 position_fps = (460, 70)
 position_elapsed = (325, 30)

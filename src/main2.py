@@ -99,21 +99,22 @@ def main():
             # taking every other frame
             pass
 
-        #### LIST DECLARATION ####
-
-
         WindowW.reset_cartesian_list()
         WindowW.reset_is_drawn()
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
+
         frame = rescale_frame(frame, 50)
+
+
         # frame2 = rescale_frame(frame, 50)
         # cv2.imshow('30', frame1)
         # cv2.imshow('50', frame2)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.medianBlur(gray, 11)                  #Need to experiment
+        # gray = cv2.GaussianBlur(gray, (5,5), 0)                  #Need to experiment
+        # gray = cv2.medianBlur(gray, 3)
 
         for i in range(0, DetectorD.item_types):
             DetectorD.item_list[i].found = []
@@ -122,7 +123,7 @@ def main():
 
         for scale in np.linspace(0.2, 1.0, 20)[::-1]:
 
-            resized = imutils.resize(gray, width=int(gray.shape[1] * scale))
+            resized = imutils.resize(gray, height = int(gray.shape[0]*scale), width=int(gray.shape[1] * scale))
             ratio = gray.shape[1] / float(resized.shape[1])
 
             break_flag = 0
@@ -130,7 +131,8 @@ def main():
             for i in range(0, DetectorD.item_types):
                 for j in range(len(DetectorD.item_list[i].templates)):
                     if (resized.shape[0] < DetectorD.item_list[i].height[j] or
-                            resized.shape[0] < DetectorD.item_list[i].width[j]):
+                            resized.shape[1] < DetectorD.item_list[i].width[j]):
+
                         break_flag = 1
 
             if break_flag == 1:
@@ -139,7 +141,7 @@ def main():
             edged = cv2.Canny(resized, 50, 100)
             #Need to experiment
             # edged = cv2.dilate(edged, None, iterations=1)
-            edged = cv2.erode(edged, kernel, iterations=1)
+            # edged = cv2.erode(edged, None, iterations=1)
 
             cv2.imshow('abv', edged)
 

@@ -60,10 +60,10 @@ class Window(object):
         is_drawn = False
 
         for iterator, i in enumerate(max_val):
-            if max_of_all < i and min_val[iterator] < Config.thresh_min:
+            if max_of_all < i and min_val[iterator] > Config.thresh_min:
                 max_of_all = i
                 index_of_max = iterator
-            
+
 
         if max_of_all > thresh_max:
             is_drawn = True
