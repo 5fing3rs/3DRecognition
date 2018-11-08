@@ -14,4 +14,6 @@ fontColor = (0, 255,0)
 lineType = 2
 number_of_frame = 0
 frame_count = 0
+degradation_percent = 80
+restoration_percent = (10000/degradation_percent)
 OUTPUT_FILE = '../output/output_video/{}.avi'.format(time.time())

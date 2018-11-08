@@ -109,7 +109,7 @@ def main():
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
-        frame = rescale_frame(frame, 50)
+        frame = rescale_frame(frame, degradation_percent)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.medianBlur(gray, 5)
@@ -174,7 +174,7 @@ def main():
             WindowW.is_drawn.append(ret_isdrawn)
             WindowW.pixel_pos.append(index_of_max)
 
-        ret_frame = rescale_frame(ret_frame, 200)
+        ret_frame = rescale_frame(ret_frame, Config.restoration_percent)
         writer.write(ret_frame)
 
         for i in range(0, DetectorD.item_types):
