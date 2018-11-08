@@ -3,10 +3,6 @@
 
 from datetime import datetime , timedelta
 import math
-import argparse
-from pathlib import Path
-import cv2
-from PIL import Image
 
 def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
     """
@@ -29,29 +25,18 @@ def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals =
     else:
         estimated_time = int(9999)
     fps = "FPS: {:.2f}".format(fps)
-
+    
     estimated_time = "Estimated Time : {}".format(str(timedelta(seconds=estimated_time)))
     print('\r%s |%s| %s%% %s\t\t%s\t\t%s' % (prefix, bar, percent, suffix, fps, estimated_time), end = '\r')
     # Print New Line on Complete
     if iteration == total:
         print()
 
-
-def resize_image(image, basewidth):
-    ''' Resize the generated image with a locked ratio to
-    conform to the base width used for detection'''
-    wpercent = (basewidth / float(image.shape[1]))
-    hsize = int((float(image.shape[0]) * float(wpercent)))
-    image = cv2.resize(image, (basewidth, hsize), interpolation=cv2.INTER_AREA)
-    return image
-
-def print_template_generator_ProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
-
+def printProgressBar1 (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-
-    print('\r%s |%s| %s%% %s\t\t' % (prefix, bar, percent, suffix), end = '\r')
+    bar = fill * filledLength + '-' * (length - filledLength)    
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
     # Print New Line on Complete
     if iteration == total:
         print()

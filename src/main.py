@@ -3,8 +3,6 @@
 import argparse
 import imutils
 import cv2
-import time
-import os
 import threading
 import sys
 import time
@@ -13,16 +11,18 @@ import numpy as np
 from imutils.video import FileVideoStream, WebcamVideoStream
 from queue import Queue
 from Item import Item
-from copy import deepcopy
-from utilities import printProgressBar, resize_image
+from utilities import printProgressBar
 from video_utils import make_240p, rescale_frame
 from detector import Detector
+# from window import localise_match, draw_match
 from window import Window
-
-
 
 DetectorD = Detector(0.09, -0.02)
 WindowW = Window()
+
+def write_video(video, frame):
+    """ Write to video """
+    video.write(frame)
 
 def check_output_dir(args):
     if not os.path.isdir("../output"):
@@ -31,34 +31,37 @@ def check_output_dir(args):
         for i in range(0, len(args.tempdirs)):
             object_name = args.tempdirs[i].split('/')
             os.makedirs("../output/{}".format(object_name[2]))
-
+ 
 def check_output_video_dir():
     if not os.path.isdir("../output/output_video"):
         os.makedirs("../output/output_video")
-
+ 
 def check_data_dir():
     if not os.path.isdir("../data"):
         os.makedirs("../data")
-
+ 
 def check_TemplateDir_corresponsingObject(object_name):
     if not os.path.isdir("../data/{}/templates".format(object_name)):
         os.makedirs("../data/{}/templates".format(object_name))
         # print("generate templates for object")
 
-def write_video(video, frame):
-    """ Write to video """
-    video.write(frame)
 
-# terrible implementation
-
+def check_query_video_path(path):
+    if not os.path.isfile(path):
+        raise IOError("Query Video file {} does not exist.".format(path))
 
 def check_init(args):
     check_data_dir()
     check_output_dir(args)
     check_output_video_dir()
+    check_query_video_path(args.videofile)
+
     for i in range(0, len(args.tempdirs)):
         object_name = args.tempdirs[i].split('/')
         check_TemplateDir_corresponsingObject(object_name[2])
+
+# terrible implementation
+
 
 def main():
     """ Main function """
@@ -74,7 +77,7 @@ def main():
     arg_parser.add_argument("-v", action='store', dest="videofile",
                             required=False, help="Path to the video file")
     args = arg_parser.parse_args()
-
+    
     check_init(args)
 
     DetectorD.item_types = len(args.tempdirs)
@@ -84,9 +87,6 @@ def main():
         DetectorD.item_list.append(Item(obj_name[2], 1))
         DetectorD.item_list[i].template_processing(args.tempdirs[i])
 
-    for i, item in enumerate(DetectorD.item_list):
-        for j, tmplt in enumerate(item.templates):
-            DetectorD.item_list[i].templates[j] = resize_image(tmplt, 150)
 
     Config.number_of_frame = 0
     Config.frame_count = 0
@@ -117,7 +117,7 @@ def main():
 
     if args.videofile is not None:
         printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
-                         suffix='Complete', length=50)
+                        suffix='Complete', length=50)
 
     total_frames = 0
 
@@ -130,26 +130,27 @@ def main():
         vidflag = fvs.more()
         webflag = False
 
-    kernel = np.ones((1,1),np.uint8)        #Need to experiment
+
 
     while vidflag:
-        total_frames += 1
+        total_frames+=1
         if total_frames % 2 == 0:
-            # taking every other frame
+            #taking every other frame
             pass
 
         #### LIST DECLARATION ####
-
+        DetectorD.reset_max_loc_val()
 
         WindowW.reset_cartesian_list()
+
         WindowW.reset_is_drawn()
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
-        frame = rescale_frame(frame, Config.degradation_percent)
+        frame = rescale_frame(frame, degradation_percent)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.medianBlur(gray, 11)                  #Need to experiment
+        gray = cv2.medianBlur(gray, 5)
 
         for i in range(0, DetectorD.item_types):
             DetectorD.item_list[i].found = []
@@ -157,6 +158,7 @@ def main():
                 DetectorD.item_list[i].found.append(None)
 
         for scale in np.linspace(0.2, 1.0, 20)[::-1]:
+
             resized = imutils.resize(gray, width=int(gray.shape[1] * scale))
             ratio = gray.shape[1] / float(resized.shape[1])
 
@@ -164,17 +166,17 @@ def main():
 
             for i in range(0, DetectorD.item_types):
                 for j in range(len(DetectorD.item_list[i].templates)):
-                    if (resized.shape[0] < DetectorD.item_list[i].templates[j].shape[0] or
-                            resized.shape[1] < DetectorD.item_list[i].templates[j].shape[1]):
+                    if (resized.shape[0] < DetectorD.item_list[i].height[j] or
+                            resized.shape[1] < DetectorD.item_list[i].width[j]):
                         break_flag = 1
 
             if break_flag == 1:
                 break
 
             edged = cv2.Canny(resized, 50, 100)
-            #Need to experiment
-            # edged = cv2.dilate(edged, None, iterations=1)
-            edged = cv2.erode(edged, kernel, iterations=1)
+            edged = cv2.dilate(edged, None,iterations=1)
+            edged = cv2.erode(edged, None,iterations=1)
+
 
             cv2.imshow('abv', edged)
 
@@ -183,9 +185,7 @@ def main():
             for i in range(0, DetectorD.item_types):
                 DetectorD.max_val.append(1)
                 DetectorD.max_loc.append(1)
-                DetectorD.min_val.append(1)
-                DetectorD.item_threads.append(threading.Thread(target=DetectorD.item_threading, args=(
-                    ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
+                DetectorD.item_threads.append(threading.Thread(target=DetectorD.item_threading, args=(ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
 
             DetectorD.spawn_item_threads()
 
@@ -194,26 +194,26 @@ def main():
              ret_starty,
              ret_endx,
              ret_endy) = WindowW.localise_match(DetectorD.item_list[i].found,
-                                                DetectorD.max_loc[i],
-                                                DetectorD.item_list[i].found,
-                                                DetectorD.item_list[i].height,
-                                                DetectorD.item_list[i].width,
-                                                ratio)
+                                        DetectorD.max_loc[i],
+                                        DetectorD.item_list[i].found,
+                                        DetectorD.item_list[i].height,
+                                        DetectorD.item_list[i].width,
+                                        ratio)
             WindowW.startx_coord.append(ret_startx)
             WindowW.starty_coord.append(ret_starty)
             WindowW.endx_coord.append(ret_endx)
             WindowW.endy_coord.append(ret_endy)
 
+
         ret_frame = None
         for i in range(0, DetectorD.item_types):
             ret_isdrawn, index_of_max, ret_frame = WindowW.draw_match(
-                frame, DetectorD.max_val[i], DetectorD.min_val[i], Config.thresh_max, i, DetectorD.item_list[i].article)
+                frame, DetectorD.max_val[i], Config.thresh_max, i, DetectorD.item_list[i].article)
             WindowW.is_drawn.append(ret_isdrawn)
             WindowW.pixel_pos.append(index_of_max)
 
         ret_frame = rescale_frame(ret_frame, Config.restoration_percent)
         writer.write(ret_frame)
-
 
         for i in range(0, DetectorD.item_types):
             if WindowW.is_drawn[i]:
@@ -232,7 +232,7 @@ def main():
         fps = Config.fps.fps()
         if args.videofile is not None:
             printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
-                             prefix='Progress:', suffix='Complete', length=50)
+                            prefix='Progress:', suffix='Complete', length=50)
 
         Config.fps.update()
 
@@ -249,7 +249,6 @@ def main():
 
     if fvs:
         fvs.stop()
-
 
 if __name__ == '__main__':
     main()

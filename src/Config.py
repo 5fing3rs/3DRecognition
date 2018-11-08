@@ -2,19 +2,18 @@
 import cv2
 from imutils.video import FPS
 import time
-import datetime
 
 fps = FPS().start()
-thresh_max = 0.10
-thresh_min = -0.033
+thresh_max = 0.01
+thresh_min = -0.02
 font = cv2.FONT_HERSHEY_SIMPLEX
 position_fps = (460, 70)
 position_elapsed = (325, 30)
-fontScale = 0.5
+fontScale = 1
 fontColor = (0, 255,0)
-lineType = 1
+lineType = 2
 number_of_frame = 0
 frame_count = 0
-degradation_percent = 70
-restoration_percent = (100/degradation_percent)*100
-OUTPUT_FILE = '../output/output_video/{}.avi'.format(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H|%M|%S'))
+degradation_percent = 80
+restoration_percent = (10000/degradation_percent)
+OUTPUT_FILE = '../output/output_video/{}.avi'.format(time.time())
