@@ -5,7 +5,7 @@ I then checked the log file corresponding to that video and took an
 average of the coordinates of the position of the object'''
 
 import os
-import main2
+import main
 import detector
 from PIL import Image
 import pytest
@@ -25,7 +25,7 @@ def test_tracking():
     count = 0
     time_curr = time.time()
 
-    os.system("python3 main2.py -td ../data/heart/templates -v ../data/test_logging.mp4")
+    os.system("python3 main.py -td ../data/heart/templates -v ../data/test_video.mp4")
 
     #finding the latest folder in the directory
     folder = "../output/heart/"
@@ -65,6 +65,6 @@ def test_tracking():
     valy = valy/count
 
     #asserting the calculated average to the manually calculated average
-    assert(valx > 250 and valx < 280) #enter coordinates after manual checking in test video
+    assert(valx > 230 and valx < 260) #enter coordinates after manual checking in test video
     assert(valy > 140 and valy < 170) #enter coordinates after manual checking in test video
 
