@@ -9,6 +9,7 @@ import csv
 import cv2
 
 class Item(object):
+    """Initializing an object for each Item type detected"""
     def __init__(self, article, identification):
         self.templates = []
         self.height = []
@@ -26,6 +27,7 @@ class Item(object):
 
 
     def set_file_name(self):
+        """Setting the name of log file"""
         _time_stamp = time.time()
         _time_stamp = datetime.datetime.fromtimestamp(_time_stamp).strftime('%Y-%m-%d %H:%M:%S')
         self.csv_file = "../output/%s/log_%s.csv" % (self.article, _time_stamp)

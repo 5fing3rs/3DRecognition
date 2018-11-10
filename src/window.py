@@ -1,7 +1,9 @@
+"""Module to make the detector output screen""" 
 import cv2
 import Config
 
 class Window(object):
+    """Initializing the attributes of a window""" 
     def __init__(self):
         self.startx_coord = []
         self.starty_coord = []
@@ -11,15 +13,18 @@ class Window(object):
         self.pixel_pos = []
 
     def reset_cartesian_list(self):
+        """Resetting the coordinates for the bounding boxes"""
         self.startx_coord = []
         self.starty_coord = []
         self.endx_coord = []
         self.endy_coord = []
 
     def reset_is_drawn(self):
+        """Resetting the is_drawn flag for each bounding box"""
         self.is_drawn = []
 
     def reset_pixel_pos(self):
+        """Resetting the pixel_pos"""
         self.pixel_pos = []
 
     def localise_match(self, found, max_loc, templates, height, width, ratio):
