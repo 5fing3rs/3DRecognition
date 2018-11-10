@@ -62,6 +62,7 @@
 │       └── 27_10.md
 ├── README.md
 └── src
+    ├── check.py
     ├── Config.py
     ├── detector.py
     ├── Item.py
@@ -108,6 +109,11 @@
 - Standard software tests can be run by executing the test programs in the `tests` directory
 - All tests can be run by executing the `tox` command. `pip3 install tox` to install tox.
 
+## Videos/Presentations
+- First Release: https://www.youtube.com/watch?v=nXojR4SApy0
+- First Release presentation: https://prezi.com/view/dBjzc3i97chm5FqSYNU0/
+- Final Release: https://youtu.be/LgYexp6iawQ
+- Final Release presentation: https://prezi.com/view/5tdPCb8dWDWIJCPCkz6q/
 ## Notes
 
 - By default the software takes input from the web camera of the device. If a pre-recorded video needs to be used, videofile path has to be specified along with the --videofile (or -v) argument.
