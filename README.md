@@ -12,7 +12,7 @@
 - ###To detect and track objects using their corresponding 3D mesh models
 
 ## Directory Structure
-
+```bash
 .
 ├── data
 │   ├── heart
@@ -160,7 +160,7 @@
     ├── video_utils.py
     ├── video_writer.py
     └── window.py
-
+```
 ### src
 
 `main.py` - Main file which runs the whole software
