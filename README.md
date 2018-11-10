@@ -104,7 +104,7 @@
 ## Testing the software
 
 - Standard software tests can be run by executing the test programs in the `tests` directory
-- All tests can be run by executing the `tox` command.  `pip3 install tox` to install tox. 
+- All tests can be run by executing the `tox` command. `pip3 install tox` to install tox. 
 
 ## Notes
 

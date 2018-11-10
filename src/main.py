@@ -61,7 +61,6 @@ def check_init(args):
         object_name = args.tempdirs[i].split('/')
         check_TemplateDir_corresponsingObject(object_name[2])
 
-# terrible implementation
 
 
 def main():
@@ -116,9 +115,9 @@ def main():
     writer = cv2.VideoWriter(Config.OUTPUT_FILE, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth, hheight), True)
 
-    # if args.videofile is not None:
-    #     printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
-    #                     suffix='Complete', length=50)
+    if args.videofile is not None:
+        printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
+                        suffix='Complete', length=50)
 
     total_frames = 0
 
@@ -148,7 +147,7 @@ def main():
         WindowW.reset_pixel_pos()
 
         frame = fvs.read()
-        # frame = rescale_frame(frame, Config.degradation_percent)
+        frame = rescale_frame(frame, Config.degradation_percent)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.medianBlur(gray, 5)
@@ -174,7 +173,7 @@ def main():
             if break_flag == 1:
                 break
 
-            edged = cv2.Canny(resized, 50, 150)
+            edged = cv2.Canny(resized, 50, 100)
             edged = cv2.dilate(edged, None,iterations=1)
             edged = cv2.erode(edged, None,iterations=1)
 
@@ -212,9 +211,8 @@ def main():
                 frame, DetectorD.max_val[i], Config.thresh_max, i, DetectorD.item_list[i].article)
             WindowW.is_drawn.append(ret_isdrawn)
             WindowW.pixel_pos.append(index_of_max)
-            print(DetectorD.max_val[i][index_of_max])
 
-        # ret_frame = rescale_frame(ret_frame, Config.restoration_percent)
+        ret_frame = rescale_frame(ret_frame, Config.restoration_percent)
         writer.write(ret_frame)
 
         for i in range(0, DetectorD.item_types):
@@ -232,9 +230,9 @@ def main():
 
         Config.frame_count += 1
         fps = Config.fps.fps()
-        # if args.videofile is not None:
-        #     printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
-        #                     prefix='Progress:', suffix='Complete', length=50)
+        if args.videofile is not None:
+            printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
+                            prefix='Progress:', suffix='Complete', length=50)
 
         Config.fps.update()
 

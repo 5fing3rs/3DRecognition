@@ -52,7 +52,7 @@ def generate_template(training_video, angle_of_rotation, base_width):
         count += 1
         printProgressBar1(count, number_of_frame,
                             prefix='Progress:', suffix='Complete', length=50)
-        
+
 
 
 if __name__ == "__main__":

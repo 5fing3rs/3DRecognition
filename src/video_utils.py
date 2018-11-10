@@ -1,7 +1,7 @@
 import cv2
 
 def make_1080p(cap):
-    """ Convert Input Video 
+    """ Convert Input Video
     to 1080p """
     cap.set(3, 1920)
     cap.set(4, 1080)
@@ -9,7 +9,7 @@ def make_1080p(cap):
 
 
 def make_720p(cap):
-    """ Convert Input Video 
+    """ Convert Input Video
     to 720p """
     cap.set(3, 1280)
     cap.set(4, 720)
@@ -17,7 +17,7 @@ def make_720p(cap):
 
 
 def make_480p(cap):
-    """ Convert Input Video 
+    """ Convert Input Video
     to 480p """
     cap.set(3, 640)
     cap.set(4, 480)
@@ -25,7 +25,7 @@ def make_480p(cap):
 
 
 def make_240p(cap):
-    """ Convert Input Video 
+    """ Convert Input Video
     to 240p """
     cap.set(3, 352)
     cap.set(4, 240)
@@ -41,4 +41,3 @@ def rescale_frame(frame, percent):
 def write_video(video, frame):
     """ Write to video """
     video.write(frame)
-

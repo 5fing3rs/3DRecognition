@@ -20,10 +20,11 @@ class OutputVideoWriter(object):
     def write(self, frame):
         self.video.write(frame)
         print("Written")
-    
+
     def set_dimension(self, width, height):
         self.height = height
         self.width = width
-    
+
     def release_video(self):
         self.video.release()
+        
