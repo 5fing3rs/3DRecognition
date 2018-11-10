@@ -4,64 +4,25 @@ import argparse
 import imutils
 import cv2
 import threading
-import sys
 import time
-import os
-import Config
 import numpy as np
+import check
+import Config
 from imutils.video import FileVideoStream, WebcamVideoStream
 from queue import Queue
 from Item import Item
 from utilities import printProgressBar
 from video_utils import make_240p, rescale_frame
 from detector import Detector
-# from window import localise_match, draw_match
 from window import Window
 
-DetectorD = Detector(0.09, -0.02)
+DetectorD = Detector()
 WindowW = Window()
+
 
 def write_video(video, frame):
     """ Write to video """
     video.write(frame)
-
-def check_output_dir(args):
-    if not os.path.isdir("../output"):
-        os.makedirs("../output")
-        os.makedirs("../output/output_video")
-        for i in range(0, len(args.tempdirs)):
-            object_name = args.tempdirs[i].split('/')
-            os.makedirs("../output/{}".format(object_name[2]))
-
-def check_output_video_dir():
-    if not os.path.isdir("../output/output_video"):
-        os.makedirs("../output/output_video")
-
-def check_data_dir():
-    if not os.path.isdir("../data"):
-        os.makedirs("../data")
-
-def check_TemplateDir_corresponsingObject(object_name):
-    if not os.path.isdir("../data/{}/templates".format(object_name)):
-        os.makedirs("../data/{}/templates".format(object_name))
-        # print("generate templates for object")
-
-
-def check_query_video_path(path):
-    if not os.path.isfile(path):
-        raise IOError("Query Video file {} does not exist.".format(path))
-
-def check_init(args):
-    check_data_dir()
-    check_output_dir(args)
-    check_output_video_dir()
-    check_query_video_path(args.videofile)
-
-    for i in range(0, len(args.tempdirs)):
-        object_name = args.tempdirs[i].split('/')
-        check_TemplateDir_corresponsingObject(object_name[2])
-
-
 
 def main():
     """ Main function """
@@ -78,7 +39,7 @@ def main():
                             required=False, help="Path to the video file")
     args = arg_parser.parse_args()
 
-    check_init(args)
+    check.check_init(args)
 
     DetectorD.item_types = len(args.tempdirs)
 
@@ -86,7 +47,6 @@ def main():
         obj_name = args.tempdirs[i].split('/')
         DetectorD.item_list.append(Item(obj_name[2], 1))
         DetectorD.item_list[i].template_processing(args.tempdirs[i])
-
 
     Config.number_of_frame = 0
     Config.frame_count = 0
@@ -100,7 +60,6 @@ def main():
         cap = cv2.VideoCapture(args.videofile)
         Config.number_of_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         try:
-            # checking if input is through a video file
             fvs = FileVideoStream(args.videofile).start()
             time.sleep(1.0)
 
@@ -111,13 +70,13 @@ def main():
             return
 
     frame = fvs.read()
-    hheight, wwidth, _ = frame.shape    # '_' had llayers
+    hheight, wwidth, _ = frame.shape
     writer = cv2.VideoWriter(Config.OUTPUT_FILE, cv2.VideoWriter_fourcc(*'PIM1'),
                              25, (wwidth, hheight), True)
 
     if args.videofile is not None:
         printProgressBar(0, 0, Config.number_of_frame, prefix='Progress:',
-                        suffix='Complete', length=50)
+                         suffix='Complete', length=50)
 
     total_frames = 0
 
@@ -130,15 +89,13 @@ def main():
         vidflag = fvs.more()
         webflag = False
 
-
-
     while vidflag:
-        total_frames+=1
+        total_frames += 1
         if total_frames % 2 == 0:
-            #taking every other frame
+            # taking every other frame
             pass
 
-        #### LIST DECLARATION ####
+        #### LIST RESET ####
         DetectorD.reset_max_loc_val()
 
         WindowW.reset_cartesian_list()
@@ -174,18 +131,18 @@ def main():
                 break
 
             edged = cv2.Canny(resized, 50, 100)
-            edged = cv2.dilate(edged, None,iterations=1)
-            edged = cv2.erode(edged, None,iterations=1)
+            edged = cv2.dilate(edged, None, iterations=1)
+            edged = cv2.erode(edged, None, iterations=1)
 
-
-            cv2.imshow('abv', edged)
+            cv2.imshow('Edge Template', edged)
 
             DetectorD.reset_max_loc_val()
             DetectorD.reset_item_threads()
             for i in range(0, DetectorD.item_types):
                 DetectorD.max_val.append(1)
                 DetectorD.max_loc.append(1)
-                DetectorD.item_threads.append(threading.Thread(target=DetectorD.item_threading, args=(ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
+                DetectorD.item_threads.append(threading.Thread(target=DetectorD.item_threading, args=(
+                    ratio, edged, DetectorD.item_list[i].templates, DetectorD.item_list[i].found, i,)))
 
             DetectorD.spawn_item_threads()
 
@@ -194,16 +151,15 @@ def main():
              ret_starty,
              ret_endx,
              ret_endy) = WindowW.localise_match(DetectorD.item_list[i].found,
-                                        DetectorD.max_loc[i],
-                                        DetectorD.item_list[i].found,
-                                        DetectorD.item_list[i].height,
-                                        DetectorD.item_list[i].width,
-                                        ratio)
+                                                DetectorD.max_loc[i],
+                                                DetectorD.item_list[i].found,
+                                                DetectorD.item_list[i].height,
+                                                DetectorD.item_list[i].width,
+                                                ratio)
             WindowW.startx_coord.append(ret_startx)
             WindowW.starty_coord.append(ret_starty)
             WindowW.endx_coord.append(ret_endx)
             WindowW.endy_coord.append(ret_endy)
-
 
         ret_frame = None
         for i in range(0, DetectorD.item_types):
@@ -232,7 +188,7 @@ def main():
         fps = Config.fps.fps()
         if args.videofile is not None:
             printProgressBar(fps, Config.frame_count + 1, Config.number_of_frame,
-                            prefix='Progress:', suffix='Complete', length=50)
+                             prefix='Progress:', suffix='Complete', length=50)
 
         Config.fps.update()
 
@@ -249,6 +205,7 @@ def main():
 
     if fvs:
         fvs.stop()
+
 
 if __name__ == '__main__':
     main()

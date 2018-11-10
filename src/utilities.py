@@ -33,6 +33,7 @@ def printProgressBar (fps,iteration, total, prefix = '', suffix = '', decimals =
         print()
 
 def printProgressBar1 (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    """ Print progress bar with required % completion """ 
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)

@@ -18,13 +18,15 @@ class OutputVideoWriter(object):
         self.video = VideoWriter(file_name,VideoWriter_fourcc(*"XVID"), fps, self.dimension , is_color)
 
     def write(self, frame):
+        """ Write frame to file """
         self.video.write(frame)
         print("Written")
 
     def set_dimension(self, width, height):
+        """ Set dimensions for frame """
         self.height = height
         self.width = width
 
     def release_video(self):
+        """ Release video cap """
         self.video.release()
-        

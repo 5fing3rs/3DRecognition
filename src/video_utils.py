@@ -32,6 +32,7 @@ def make_240p(cap):
     return cap
 
 def rescale_frame(frame, percent):
+    """ Rescaling frame of video """
     scale_percent = percent
     width =  int(frame.shape[1]*percent/100)
     height = int(frame.shape[0]*percent/100)
