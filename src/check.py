@@ -28,13 +28,13 @@ def check_TemplateDir_corresponsingObject(object_name):
     """ Check existence of object template directory """
     if not os.path.isdir("../data/{}/templates".format(object_name)):
         os.makedirs("../data/{}/templates".format(object_name))
-        # print("generate templates for object")
 
 
 def check_query_video_path(path):
     """ Check validity of video file path """
-    if not os.path.isfile(path):
-        raise IOError("Query Video file {} does not exist.".format(path))
+    if path is not None:
+        if not os.path.isfile(path):
+            raise IOError("Query Video file {} does not exist.".format(path))
 
 
 def check_init(args):
