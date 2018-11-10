@@ -25,8 +25,10 @@
 │   └── syringe
 │       ├── templates
 │       │   ├── syringe_<templatenumber>
-│       └── training_video
-│           ├── syringe_body_<videonumber>
+│       ├── training_video
+│       │   ├── syringe_body_<videonumber>
+│       ├── test_logging.mp4
+│       └── test_video.mp4
 ├── document
 │   ├── milestone.odt
 │   ├── Presenation draft
@@ -104,7 +106,7 @@
 ## Testing the software
 
 - Standard software tests can be run by executing the test programs in the `tests` directory
-- All tests can be run by executing the `tox` command. `pip3 install tox` to install tox. 
+- All tests can be run by executing the `tox` command. `pip3 install tox` to install tox.
 
 ## Notes
 
