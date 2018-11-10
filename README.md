@@ -12,107 +12,21 @@
 - ###To detect and track objects using their corresponding 3D mesh models
 
 ## Directory Structure
-
+```bash
 .
 ├── data
 │   ├── heart
 │   │   ├── mesh
 │   │   │   └── meshmodel
 │   │   ├── templates
-│   │   │   ├── heart_1_0.jpg
-│   │   │   ├── heart_1_135.jpg
-│   │   │   ├── heart_1_180.jpg
-│   │   │   ├── heart_1_225.jpg
-│   │   │   ├── heart_1_270.jpg
-│   │   │   ├── heart_1_315.jpg
-│   │   │   ├── heart_1_360.jpg
-│   │   │   ├── heart_1_45.jpg
-│   │   │   ├── heart_1_90.jpg
-│   │   │   ├── heart_2_0.jpg
-│   │   │   ├── heart_2_135.jpg
-│   │   │   ├── heart_2_180.jpg
-│   │   │   ├── heart_2_225.jpg
-│   │   │   ├── heart_2_270.jpg
-│   │   │   ├── heart_2_315.jpg
-│   │   │   ├── heart_2_360.jpg
-│   │   │   ├── heart_2_45.jpg
-│   │   │   ├── heart_2_90.jpg
-│   │   │   ├── heart_3_0.jpg
-│   │   │   ├── heart_3_135.jpg
-│   │   │   ├── heart_3_180.jpg
-│   │   │   ├── heart_3_225.jpg
-│   │   │   ├── heart_3_270.jpg
-│   │   │   ├── heart_3_315.jpg
-│   │   │   ├── heart_3_360.jpg
-│   │   │   ├── heart_3_45.jpg
-│   │   │   ├── heart_3_90.jpg
-│   │   │   ├── heart_4_0.jpg
-│   │   │   ├── heart_4_135.jpg
-│   │   │   ├── heart_4_180.jpg
-│   │   │   ├── heart_4_225.jpg
-│   │   │   ├── heart_4_270.jpg
-│   │   │   ├── heart_4_315.jpg
-│   │   │   ├── heart_4_360.jpg
-│   │   │   ├── heart_4_45.jpg
-│   │   │   ├── heart_4_90.jpg
-│   │   │   ├── heart_5_0.jpg
-│   │   │   ├── heart_5_135.jpg
-│   │   │   ├── heart_5_180.jpg
-│   │   │   ├── heart_5_225.jpg
-│   │   │   ├── heart_5_270.jpg
-│   │   │   ├── heart_5_315.jpg
-│   │   │   ├── heart_5_360.jpg
-│   │   │   ├── heart_5_45.jpg
-│   │   │   └── heart_5_90.jpg
+│   │   │   ├── heart_templatenumber
 │   │   └── training_video
-│   │       ├── heart_1.avi
-│   │       ├── heart_2.avi
-│   │       ├── heart_3.avi
-│   │       ├── heart_4.avi
-│   │       └── heart_5.avi
+│   │       ├── heart_videonumber
 │   └── syringe
 │       ├── templates
-│       │   ├── syringe_1_0.jpg
-│       │   ├── syringe_1_135.jpg
-│       │   ├── syringe_1_180.jpg
-│       │   ├── syringe_1_225.jpg
-│       │   ├── syringe_1_270.jpg
-│       │   ├── syringe_1_315.jpg
-│       │   ├── syringe_1_360.jpg
-│       │   ├── syringe_1_45.jpg
-│       │   ├── syringe_1_90.jpg
-│       │   ├── syringe_2_0.jpg
-│       │   ├── syringe_2_135.jpg
-│       │   ├── syringe_2_180.jpg
-│       │   ├── syringe_2_225.jpg
-│       │   ├── syringe_2_270.jpg
-│       │   ├── syringe_2_315.jpg
-│       │   ├── syringe_2_360.jpg
-│       │   ├── syringe_2_45.jpg
-│       │   ├── syringe_2_90.jpg
-│       │   ├── syringe_3_0.jpg
-│       │   ├── syringe_3_135.jpg
-│       │   ├── syringe_3_180.jpg
-│       │   ├── syringe_3_225.jpg
-│       │   ├── syringe_3_270.jpg
-│       │   ├── syringe_3_315.jpg
-│       │   ├── syringe_3_360.jpg
-│       │   ├── syringe_3_45.jpg
-│       │   ├── syringe_3_90.jpg
-│       │   ├── syringe_4_0.jpg
-│       │   ├── syringe_4_135.jpg
-│       │   ├── syringe_4_180.jpg
-│       │   ├── syringe_4_225.jpg
-│       │   ├── syringe_4_270.jpg
-│       │   ├── syringe_4_315.jpg
-│       │   ├── syringe_4_360.jpg
-│       │   ├── syringe_4_45.jpg
-│       │   └── syringe_4_90.jpg
+│       │   ├── syringe_templatenumber
 │       └── training_video
-│           ├── syringe_body_1.avi
-│           ├── syringe_body_2.avi
-│           ├── syringe_body_3.avi
-│           └── syringe_body_4.avi
+│           ├── syringe_body_videonumber
 ├── document
 │   ├── milestone.odt
 │   ├── Presenation draft
@@ -124,10 +38,10 @@
 │   ├── StatusTracker_1.xlsx
 │   ├── Test_Planner_and_Tracker.xlsx
 │   └── UML diagrams
-│       ├── WhatsApp_Image_2018-09-19_at_10.38.54_PM.jpeg
-│       ├── WhatsApp_Image_2018-09-19_at_10.38.55_PM.jpeg
-│       ├── WhatsApp_Image_2018-09-19_at_10.53.44_PM.jpeg
-│       └── WhatsApp_Image_2018-09-19_at_10.53.50_PM.jpeg
+│       ├── UMLDiagram1.jpeg
+│       ├── UMLDiagram2.jpeg
+│       ├── UMLDiagram3.jpeg
+│       └── UMLDiagram4.jpeg
 ├── meeting_minutes
 │   ├── Client
 │   │   ├── 11_08.md
@@ -142,7 +56,7 @@
 │       ├── 11_09.md
 │       ├── 19_08.md
 │       ├── 19_09.md
-│       ├── 2_11.md
+│       ├── 02_11.md
 │       └── 27_10.md
 ├── README.md
 └── src
@@ -160,7 +74,7 @@
     ├── video_utils.py
     ├── video_writer.py
     └── window.py
-
+```
 ### src
 
 `main.py` - Main file which runs the whole software
@@ -179,11 +93,11 @@
 
 ## Generate edge templates of mesh models
 
-`python3 template_generator.py -tv <path-to-training-video>`
+`python3 template_generator.py -tv <path-to-training-video> -a [rotation-angle-interval]`
 
 ## Run Software
 
-`python3 main.py <--templatedir> <path-to-template-directory> [--videofile][path-to-video-file]``
+`python3 main.py <--templatedir> <path-to-template-directory> [--videofile] [path-to-video-file]`
 
 ## Notes
 
