@@ -48,8 +48,9 @@ def check_TemplateDir_corresponsingObject(object_name):
 
 
 def check_query_video_path(path):
-    if not os.path.isfile(path):
-        raise IOError("Query Video file {} does not exist.".format(path))
+	if path is not None:
+	    if not os.path.isfile(path):
+	        raise IOError("Query Video file {} does not exist.".format(path))
 
 def check_init(args):
     check_data_dir()
