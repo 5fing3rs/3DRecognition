@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 import cv2
 from PIL import Image
-
+from utilities import printProgressBar1
 
 def get_template_path(path, count):
     ''' Get the path of the template that will be generated.'''
@@ -33,12 +33,13 @@ def validate_path(path):
     return 0
 
 
-def generate_template(training_video, angle_of_rotation):
+def generate_template(training_video, angle_of_rotation, base_width):
     ''' Generate templates for the given video and save them'''
     training_video = str(training_video)
     video_capture = cv2.VideoCapture(training_video)
     number_of_frame = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-    print(number_of_frame)
+    # print(number_of_frame)
+    print("Generating templates for {}".format(training_video))
     success, image = video_capture.read()
     count = 0
     success = True
@@ -46,9 +47,12 @@ def generate_template(training_video, angle_of_rotation):
         if count % angle_of_rotation == 0:
             template_path = get_template_path(training_video, count)
             cv2.imwrite(template_path, image)
-            resize_image(template_path, 250)
+            resize_image(template_path, base_width)
         success, image = video_capture.read()
         count += 1
+        printProgressBar1(count, number_of_frame,
+                            prefix='Progress:', suffix='Complete', length=50)
+        
 
 
 if __name__ == "__main__":
@@ -57,9 +61,16 @@ if __name__ == "__main__":
                         dest='training_video_set', default=[], help='Add the training video path',)
     PARSER.add_argument('-a', '--angle', action='store',
                         dest='angle', help='Give the angle of rotation')
+    PARSER.add_argument('-bw', '--basewidth', action='store',
+                        dest='basewidth', help='Give the base width of the template')
     ARGS = PARSER.parse_args()
     TRAINING_VIDEO_SET = ARGS.training_video_set
     ANGLE = 45
+    BASE_WIDTH = 150
+
+    if ARGS.basewidth:
+        BASE_WIDTH = ARGS.basewidth
+
     if ARGS.angle:
         ANGLE = ARGS.angle
 
@@ -67,7 +78,7 @@ if __name__ == "__main__":
         video = Path(video)
         err = validate_path(video)
         if err == 1:
-            generate_template(video, int(ANGLE))
+            generate_template(video, int(ANGLE), int(BASE_WIDTH))
         elif err == -1:
             print("Invalid format. Allowed formats .avi .mp4")
         elif err == 0:

@@ -37,3 +37,8 @@ def rescale_frame(frame, percent):
     height = int(frame.shape[0]*percent/100)
     dimensions = (width, height)
     return cv2.resize(frame, dimensions, interpolation=cv2.INTER_AREA)
+
+def write_video(video, frame):
+    """ Write to video """
+    video.write(frame)
+
