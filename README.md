@@ -9,7 +9,7 @@
 
 ## Problem Statement:
 
-- ###To detect and track objects using their corresponding 3D mesh models
+- To detect and track objects using their corresponding 3D mesh models
 
 ## Directory Structure
 ```bash
