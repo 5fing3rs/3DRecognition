@@ -2,14 +2,14 @@
 
 ## Team Members
 
--Rohan Chacko
--AadilMehdi
--Priyank Modi
--Antony Martin
+- Rohan Chacko
+- AadilMehdi Sanchawala
+- Priyank Modi
+- Antony Martin
 
 ## Problem Statement:
 
-- To detect and track objects using their corresponding 3D mesh models
+- To detect and track objects in a 2D video using their corresponding 3D mesh models
 
 ## Directory Structure
 ```bash
@@ -19,14 +19,14 @@
 │   │   ├── mesh
 │   │   │   └── meshmodel
 │   │   ├── templates
-│   │   │   ├── heart_templatenumber
+│   │   │   ├── heart_<templatenumber>
 │   │   └── training_video
 │   │       ├── heart_videonumber
 │   └── syringe
 │       ├── templates
-│       │   ├── syringe_templatenumber
+│       │   ├── syringe_<templatenumber>
 │       └── training_video
-│           ├── syringe_body_videonumber
+│           ├── syringe_body_<videonumber>
 ├── document
 │   ├── milestone.odt
 │   ├── Presenation draft
@@ -64,43 +64,50 @@
     ├── detector.py
     ├── Item.py
     ├── main.py
-    ├── match.py
     ├── requirements.txt
     ├── template_generator.py
     ├── tests
+    │   ├── test_logging.py
     │   ├── test_template_generator.py
-    │   └── test_videostream_reception.py
+    │   ├── test_tracking.py
+    │   ├── test_videostream_reception.py
+    │   └── test_video_utilities.py
     ├── utilities.py
     ├── video_utils.py
     ├── video_writer.py
     └── window.py
 ```
-### src
+### Modules
 
-`main.py` - Main file which runs the whole software
-`match.py` - Contains functions for generating edge templates from video and matching with best possible models
-`Config.py` - Global constants declaration
-`Item.py` - Contains classes for all models
-`template_generator.py` - Generates edge templates based on video of edge template
-`utilities.py` - Used for printing progress bars to provide a better UI
-`video_utils.py` - Contains functions to change the resolution of the video
-`video_writer.py` - Writes the output video
+`main.py` - Main file which runs the whole software  
+`Config.py` - Global constants declaration  
+`Item.py` - Contains classes for all models  
+`template_generator.py` - Generates edge templates based on video of edge template  
+`detector.py` - Declares the detector class which contains the matching algorithm for the software  
+`utilities.py` - Used for printing progress bars to provide a better UI  
+`video_utils.py` - Contains functions to change the resolution of the video  
+`video_writer.py` - Writes the output video  
 `window.py` - Defines the specifications and design of the bounding box
 
 ## Install prerequisites
 
 `pip3 install -r requirements.txt`
 
-## Generate edge templates of mesh models
+## Generating edge templates from mesh models
 
 `python3 template_generator.py -tv <path-to-training-video> -a [rotation-angle-interval]`
 
-## Run Software
+## Run software
 
 `python3 main.py <--templatedir> <path-to-template-directory> [--videofile] [path-to-video-file]`
 
+## Testing the software
+
+- Standard software tests can be run by executing the test programs in the `tests` directory
+- All tests can be run by executing the `tox` command.  `pip3 install tox` to install tox. 
+
 ## Notes
 
-- By default the software takes input from the web camera of the device. If a pre-recorded video needs to be used, videofile path has to be specified along with the --videofile(or -v) argument.
+- By default the software takes input from the web camera of the device. If a pre-recorded video needs to be used, videofile path has to be specified along with the --videofile (or -v) argument.
 
-- Currently, data directory has only syringe and heart edge templates generated. Edge templates of other mesh models can be generated using the Projection script with a provided video file of the projected 3D mesh model
+- Currently, data directory has only syringe and heart edge templates generated. Edge templates of other mesh models can be generated using the template_generator script with a provided video file of the projected 3D mesh model
