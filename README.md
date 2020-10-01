@@ -9,7 +9,7 @@
 
 ## Problem Statement:
 
-- To detect and track objects in a 2D video using their corresponding 3D mesh models
+- To detect and track objects in a 2D video using their corresponding 3D mesh models. To detect organs and operation instruments during surgery and keeping an inventory of the same.
 
 ## Directory Structure
 ```bash
